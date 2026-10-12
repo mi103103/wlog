@@ -101,7 +101,7 @@
       font-size: 12px;
       color: #00FF66;
       font-weight: bold;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .calendar-grid-container {
       position: relative;
@@ -109,7 +109,7 @@
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
+      gap: 1px;
       position: relative;
       z-index: 2;
     }
@@ -207,7 +207,7 @@
     }
     .input-label {
       color: #00FF66;
-      font-size: 17px;
+      font-size: 14px;
       font-weight: bold;
     }
     .input-box {
@@ -216,14 +216,16 @@
       align-items: center;
       position: relative;
     }
-    .term-input {
-      background: transparent;
-      border: none;
+    .term-input, .term-select {
+      background: #070A07;
+      border: 1px solid #005522;
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 22px;
+      font-size: 16px;
       font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 2px;
       width: 100%;
     }
     .term-input::placeholder {
@@ -231,7 +233,7 @@
     }
     .suffix {
       color: #00CC55;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       margin-left: 4px;
     }
@@ -270,39 +272,55 @@
       color: #000;
     }
 
-    /* BMI ウィンドウ */
-    .bmi-header {
+    /* REPORT ウィンドウ用スタイル */
+    .report-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .report-item {
+      background: #070A07;
+      border: 1px solid #005522;
+      padding: 8px;
+      border-radius: 2px;
+    }
+    .report-item-title {
+      font-size: 11px;
+      color: #00CC55;
+      margin-bottom: 4px;
+    }
+    .report-item-value {
+      font-size: 14px;
+      font-weight: bold;
+      color: #00FF66;
+    }
+    .report-comment {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #00CC55;
+      border-top: 1px dashed #005522;
+      padding-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* PERSONAL DATA トグル用スタイル */
+    .collapse-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      cursor: pointer;
     }
-    .bmi-badge {
-      font-size: 12px;
-      font-weight: bold;
-      padding: 3px 8px;
-      border-radius: 2px;
-      border: 1px solid;
-    }
-    .bar-container {
-      display: flex;
-      align-items: center;
+    .collapse-body {
+      display: none;
+      flex-direction: column;
       gap: 8px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #00CC55;
+      margin-top: 10px;
+      border-top: 1px dashed #005522;
+      padding-top: 10px;
     }
-    .bar-track {
-      flex: 1;
-      height: 16px;
-      background: #050B05;
-      border-radius: 2px;
-      position: relative;
-      overflow: hidden;
-    }
-    canvas#bmiCanvas {
-      width: 100%;
-      height: 100%;
+    .collapse-body.open {
+      display: flex;
     }
   </style>
 </head>
@@ -316,7 +334,7 @@
       <div class="combo-text" id="comboText">0 DAYS COMBO!</div>
     </div>
 
-    <!-- 2. カレンダー ＋ 週独立折れ線グラフ -->
+    <!-- 2. カレンダー ＋ 複合グラフ -->
     <div class="calendar-card">
       <div class="calendar-nav">
         <div class="nav-btn" id="prevMonthBtn">[ &lt; PREV ]</div>
@@ -343,42 +361,119 @@
         <button type="button" class="btn btn-del" id="delBtn" style="display:none;">DEL</button>
       </div>
       <form id="weightForm" action="javascript:void(0);">
-        <div class="card-row">
-          <span class="input-label">&gt; INPUT:</span>
-          <div class="input-box">
-            <input type="number" step="0.1" class="term-input" id="weightInput" placeholder="00.0" inputmode="decimal">
-            <span class="suffix">KG</span>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="card-row">
+            <span class="input-label" style="width: 85px;">&gt; WEIGHT:</span>
+            <div class="input-box">
+              <input type="number" step="0.1" class="term-input" id="weightInput" placeholder="00.0" inputmode="decimal" style="font-size:22px; background:transparent; border:none;">
+              <span class="suffix">KG</span>
+            </div>
           </div>
-          <button type="submit" class="btn btn-main" id="saveBtn">RECORD</button>
+          <div class="card-row">
+            <span class="input-label" style="width: 85px;">&gt; BFP:</span>
+            <div class="input-box">
+              <input type="number" step="0.1" class="term-input" id="fatInput" placeholder="00.0" inputmode="decimal" style="font-size:22px; background:transparent; border:none;">
+              <span class="suffix">%</span>
+            </div>
+            <button type="submit" class="btn btn-main" id="saveBtn">RECORD</button>
+          </div>
         </div>
       </form>
     </div>
 
-    <!-- 4. BMI ウィンドウ -->
+    <!-- 4. REPORT ウィンドウ -->
     <div class="card">
-      <div class="bmi-header">
-        <span class="input-label">&gt; BMI:</span>
-        <span style="font-size: 22px; font-weight: bold;" id="bmiVal">--.-</span>
-        <div class="bmi-badge" id="bmiBadge">NO DATA</div>
+      <div style="margin-bottom: 6px;">
+        <span class="input-label" style="font-size: 14px;">&gt; REPORT:</span>
       </div>
-      <div class="bar-container">
-        <span>15.0</span>
-        <div class="bar-track">
-          <canvas id="bmiCanvas"></canvas>
+      <div class="report-list">
+        <div class="report-item">
+          <div class="report-item-title">&gt; BMI</div>
+          <div class="report-item-value" id="repBmi">--.-</div>
         </div>
-        <span>35.0</span>
+        <div class="report-item">
+          <div class="report-item-title">&gt; BMR</div>
+          <div class="report-item-value" id="repBmr">-- kcal</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; WEEKLY CHANGE</div>
+          <div class="report-item-value" id="repWeeklyChange">-- kg</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; MONTHLY CHANGE</div>
+          <div class="report-item-value" id="repMonthlyChange">-- kg</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; BODY TYPE</div>
+          <div class="report-item-value" id="repBodyType">--</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; LOWEST WEIGHT</div>
+          <div class="report-item-value" id="repLowestWeight">-- kg (--/--/--)</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; HIGHEST WEIGHT</div>
+          <div class="report-item-value" id="repHighestWeight">-- kg (--/--/--)</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; WEIGHT TO GOAL</div>
+          <div class="report-item-value" id="repWeightToGoal">-- kg</div>
+        </div>
+        <div class="report-item">
+          <div class="report-item-title">&gt; BFP TO GOAL</div>
+          <div class="report-item-value" id="repFatToGoal">-- %</div>
+        </div>
+      </div>
+      <div class="report-comment" id="repComment" style="margin-top: 8px;">
+        &gt; TIPS: データを記録するとダイエットに役立つアドバイスが表示されます。
       </div>
     </div>
 
-    <!-- 5. HEIGHT ウィンドウ -->
+    <!-- 5. PERSONAL DATA ウィンドウ（トグル式） -->
     <div class="card">
-      <div class="card-row">
-        <span class="input-label">&gt; HEIGHT:</span>
-        <div class="input-box">
-          <input type="number" step="0.1" class="term-input" id="heightInput" placeholder="000.0" inputmode="decimal">
-          <span class="suffix">CM</span>
+      <div class="collapse-header" id="personalDataToggle">
+        <span class="input-label" style="font-size: 14px;">&gt; PERSONAL DATA <span id="toggleIndicator" style="font-size: 12px; color: #00CC55;">[+]</span></span>
+      </div>
+      <div class="collapse-body" id="personalDataBody">
+        <!-- GENDER -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">&gt; GENDER:</span>
+          <select class="term-select" id="genderSelect">
+            <option value="male">MALE</option>
+            <option value="female">FEMALE</option>
+          </select>
         </div>
-        <button class="btn btn-set" id="setHeightBtn">SET</button>
+        <!-- BIRTH YEAR / MONTH -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">&gt; BIRTH DATE:</span>
+          <select class="term-select" id="birthYearSelect" style="flex:1.5;"></select>
+          <select class="term-select" id="birthMonthSelect" style="flex:1;"></select>
+        </div>
+        <!-- HEIGHT -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">&gt; HEIGHT:</span>
+          <div class="input-box">
+            <input type="number" step="0.1" class="term-input" id="heightInput" placeholder="000.0" inputmode="decimal">
+            <span class="suffix">CM</span>
+          </div>
+        </div>
+        <!-- TARGET WEIGHT -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">&gt; TARGET W:</span>
+          <div class="input-box">
+            <input type="number" step="0.1" class="term-input" id="targetWeightInput" placeholder="00.0" inputmode="decimal">
+            <span class="suffix">KG</span>
+          </div>
+        </div>
+        <!-- TARGET BFP -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">&gt; TARGET BFP:</span>
+          <div class="input-box">
+            <input type="number" step="0.1" class="term-input" id="targetFatInput" placeholder="00.0" inputmode="decimal">
+            <span class="suffix">%</span>
+          </div>
+          <button class="btn btn-set" id="setProfileBtn">SET</button>
+        </div>
       </div>
     </div>
 
@@ -398,19 +493,27 @@
   <script>
     // Storage Keys
     const STORAGE_KEY = 'weight_records_storage';
-    const HEIGHT_STORAGE_KEY = 'user_height_storage';
+    const PROFILE_STORAGE_KEY = 'user_profile_storage';
 
     // State Variables
     let records = [];
-    let userHeight = null;
+    let userProfile = {
+      gender: 'male',
+      birthYear: 1990,
+      birthMonth: 1,
+      height: null,
+      targetWeight: null,
+      targetFat: null
+    };
+
     let selectedDate = new Date();
     let selectedTimeSlot = new Date().getHours() < 12 ? 'am' : 'pm';
     let currentMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
 
     // DOM Elements
     const weightInput = document.getElementById('weightInput');
+    const fatInput = document.getElementById('fatInput');
     const weightForm = document.getElementById('weightForm');
-    const heightInput = document.getElementById('heightInput');
     const dateText = document.getElementById('dateText');
     const inputCard = document.getElementById('inputCard');
     const delBtn = document.getElementById('delBtn');
@@ -423,20 +526,62 @@
     const monthTitle = document.getElementById('monthTitle');
     const calendarGrid = document.getElementById('calendarGrid');
     const graphCanvas = document.getElementById('graphCanvas');
-    const bmiVal = document.getElementById('bmiVal');
-    const bmiBadge = document.getElementById('bmiBadge');
-    const bmiCanvas = document.getElementById('bmiCanvas');
+
+    // Personal Data DOM
+    const genderSelect = document.getElementById('genderSelect');
+    const birthYearSelect = document.getElementById('birthYearSelect');
+    const birthMonthSelect = document.getElementById('birthMonthSelect');
+    const heightInput = document.getElementById('heightInput');
+    const targetWeightInput = document.getElementById('targetWeightInput');
+    const targetFatInput = document.getElementById('targetFatInput');
+    const setProfileBtn = document.getElementById('setProfileBtn');
+    const personalDataToggle = document.getElementById('personalDataToggle');
+    const personalDataBody = document.getElementById('personalDataBody');
+    const toggleIndicator = document.getElementById('toggleIndicator');
+
+    // Report DOM Elements
+    const repBmi = document.getElementById('repBmi');
+    const repBmr = document.getElementById('repBmr');
+    const repWeeklyChange = document.getElementById('repWeeklyChange');
+    const repMonthlyChange = document.getElementById('repMonthlyChange');
+    const repBodyType = document.getElementById('repBodyType');
+    const repLowestWeight = document.getElementById('repLowestWeight');
+    const repHighestWeight = document.getElementById('repHighestWeight');
+    const repWeightToGoal = document.getElementById('repWeightToGoal');
+    const repFatToGoal = document.getElementById('repFatToGoal');
+    const repComment = document.getElementById('repComment');
+
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
     const importFileInput = document.getElementById('importFileInput');
 
     // Initialize
     function init() {
+      populateProfileDropdowns();
       loadData();
       setupEvents();
       loadRecordToController();
       render();
       registerServiceWorker();
+    }
+
+    function populateProfileDropdowns() {
+      const currentY = new Date().getFullYear();
+      birthYearSelect.innerHTML = '';
+      for (let y = currentY; y >= 1920; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.innerText = `${y} YR`;
+        birthYearSelect.appendChild(opt);
+      }
+
+      birthMonthSelect.innerHTML = '';
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.innerText = `${String(m).padStart(2, '0')} MO`;
+        birthMonthSelect.appendChild(opt);
+      }
     }
 
     function registerServiceWorker() {
@@ -450,23 +595,29 @@
     }
 
     function loadData() {
-      // 身長の読み込み
-      const savedHeight = localStorage.getItem(HEIGHT_STORAGE_KEY);
-      if (savedHeight !== null && savedHeight !== '') {
-        userHeight = parseFloat(savedHeight);
-        if (!isNaN(userHeight)) {
-          heightInput.value = userHeight.toFixed(1);
-        }
+      const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (savedProfile) {
+        try {
+          userProfile = { ...userProfile, ...JSON.parse(savedProfile) };
+        } catch(e) {}
       }
 
-      // 体重記録の読み込み
+      genderSelect.value = userProfile.gender || 'male';
+      birthYearSelect.value = userProfile.birthYear || 1990;
+      birthMonthSelect.value = userProfile.birthMonth || 1;
+      heightInput.value = (userProfile.height !== null && !isNaN(userProfile.height)) ? parseFloat(userProfile.height).toFixed(1) : '';
+      targetWeightInput.value = (userProfile.targetWeight !== null && !isNaN(userProfile.targetWeight)) ? parseFloat(userProfile.targetWeight).toFixed(1) : '';
+      targetFatInput.value = (userProfile.targetFat !== null && !isNaN(userProfile.targetFat)) ? parseFloat(userProfile.targetFat).toFixed(1) : '';
+
       const savedRecords = localStorage.getItem(STORAGE_KEY);
       if (savedRecords !== null) {
         try {
           const parsed = JSON.parse(savedRecords);
           records = parsed.map(r => ({
             ...r,
-            date: new Date(r.date)
+            date: new Date(r.date),
+            weight: r.weight !== undefined && r.weight !== null ? parseFloat(r.weight) : null,
+            bodyFat: r.bodyFat !== undefined && r.bodyFat !== null ? parseFloat(r.bodyFat) : null
           }));
         } catch(e) {
           records = [];
@@ -480,28 +631,55 @@
       const data = records.map(r => ({
         date: r.date.toISOString(),
         timeSlot: r.timeSlot,
-        weight: r.weight
+        weight: r.weight,
+        bodyFat: r.bodyFat
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    // 入力値の自動補填処理（610 -> 61.0, 61 -> 61.0, 120 -> 120.0 等）
-    function autoCorrectWeightInput() {
-      const rawVal = weightInput.value.trim();
-      if (!rawVal) return;
+    function saveProfile() {
+      const hVal = parseFloat(heightInput.value);
+      const twVal = parseFloat(targetWeightInput.value);
+      const tfVal = parseFloat(targetFatInput.value);
 
-      let val = parseFloat(rawVal);
-      if (isNaN(val)) return;
+      userProfile = {
+        gender: genderSelect.value,
+        birthYear: parseInt(birthYearSelect.value, 10),
+        birthMonth: parseInt(birthMonthSelect.value, 10),
+        height: !isNaN(hVal) ? hVal : null,
+        targetWeight: !isNaN(twVal) ? twVal : null,
+        targetFat: !isNaN(tfVal) ? tfVal : null
+      };
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
+      renderReport();
+    }
 
-      // 小数点が含まれておらず、3桁以上の整数入力（例: 610 -> 61.0）
-      if (!rawVal.includes('.') && val >= 300) {
-        val = val / 10;
+    function autoCorrectInput() {
+      const rawW = weightInput.value.trim();
+      if (rawW) {
+        let valW = parseFloat(rawW);
+        if (!isNaN(valW)) {
+          if (!rawW.includes('.') && valW >= 300) valW = valW / 10;
+          weightInput.value = valW.toFixed(1);
+        }
       }
 
-      weightInput.value = val.toFixed(1);
+      const rawF = fatInput.value.trim();
+      if (rawF) {
+        let valF = parseFloat(rawF);
+        if (!isNaN(valF)) {
+          fatInput.value = valF.toFixed(1);
+        }
+      }
     }
 
     function setupEvents() {
+      // PERSONAL DATA トグルイベント
+      personalDataToggle.onclick = () => {
+        const isOpen = personalDataBody.classList.toggle('open');
+        toggleIndicator.innerText = isOpen ? '[-]' : '[+]';
+      };
+
       document.getElementById('refreshBtn').onclick = () => {
         const now = new Date();
         selectedDate = now;
@@ -524,56 +702,52 @@
       amBtn.onclick = () => { selectedTimeSlot = 'am'; loadRecordToController(); renderInputSection(); };
       pmBtn.onclick = () => { selectedTimeSlot = 'pm'; loadRecordToController(); renderInputSection(); };
 
-      // フォーカスが外れたタイミングで補填
-      weightInput.onblur = () => {
-        autoCorrectWeightInput();
-        renderBMI();
-      };
-
-      // フォームの送信（キーボードのEnter / RECORD / UPDATEボタン押下時）
       weightForm.onsubmit = (e) => {
         e.preventDefault();
-        autoCorrectWeightInput();
+        autoCorrectInput();
 
-        const val = parseFloat(weightInput.value);
-        if (isNaN(val)) return;
+        const valW = weightInput.value.trim() !== '' ? parseFloat(weightInput.value) : null;
+        const valF = fatInput.value.trim() !== '' ? parseFloat(fatInput.value) : null;
 
+        if (valW === null && valF === null) return;
+
+        let existing = records.find(r => isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot);
+        
         records = records.filter(r => !(isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot));
-        records.push({ date: new Date(selectedDate), timeSlot: selectedTimeSlot, weight: val });
+        records.push({ 
+          date: new Date(selectedDate), 
+          timeSlot: selectedTimeSlot, 
+          weight: valW !== null ? valW : (existing ? existing.weight : null),
+          bodyFat: valF !== null ? valF : (existing ? existing.bodyFat : null)
+        });
+
         saveRecords();
         render();
 
-        // キーボードを閉じる
         weightInput.blur();
+        fatInput.blur();
       };
 
       delBtn.onclick = () => {
         records = records.filter(r => !(isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot));
         weightInput.value = '';
+        fatInput.value = '';
         saveRecords();
         render();
       };
 
-      document.getElementById('setHeightBtn').onclick = () => {
-        const val = parseFloat(heightInput.value);
-        if (!isNaN(val)) {
-          userHeight = val;
-          localStorage.setItem(HEIGHT_STORAGE_KEY, val.toString());
-          renderBMI();
-        }
+      setProfileBtn.onclick = () => {
+        saveProfile();
+        alert('PROFILE SAVED!');
       };
 
-      weightInput.oninput = () => renderBMI();
-      heightInput.oninput = () => {
-        const val = parseFloat(heightInput.value);
-        userHeight = !isNaN(val) ? val : null;
-        if (userHeight !== null) {
-          localStorage.setItem(HEIGHT_STORAGE_KEY, userHeight.toString());
-        }
-        renderBMI();
-      };
+      genderSelect.onchange = saveProfile;
+      birthYearSelect.onchange = saveProfile;
+      birthMonthSelect.onchange = saveProfile;
+      heightInput.oninput = saveProfile;
+      targetWeightInput.oninput = saveProfile;
+      targetFatInput.oninput = saveProfile;
 
-      // バックアップ機能の処理
       exportBtn.onclick = exportData;
       importBtn.onclick = () => importFileInput.click();
       importFileInput.onchange = importData;
@@ -581,11 +755,12 @@
 
     function exportData() {
       const backupData = {
-        height: userHeight,
+        profile: userProfile,
         records: records.map(r => ({
           date: r.date.toISOString(),
           timeSlot: r.timeSlot,
-          weight: r.weight
+          weight: r.weight,
+          bodyFat: r.bodyFat
         }))
       };
 
@@ -615,23 +790,24 @@
         try {
           const parsed = JSON.parse(event.target.result);
           
-          if (parsed.height !== undefined) {
-            userHeight = parsed.height;
-            if (userHeight !== null) {
-              localStorage.setItem(HEIGHT_STORAGE_KEY, userHeight.toString());
-              heightInput.value = userHeight.toFixed(1);
-            } else {
-              localStorage.removeItem(HEIGHT_STORAGE_KEY);
-              heightInput.value = '';
-            }
+          if (parsed.profile) {
+            userProfile = { ...userProfile, ...parsed.profile };
+            localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
+            genderSelect.value = userProfile.gender || 'male';
+            birthYearSelect.value = userProfile.birthYear || 1990;
+            birthMonthSelect.value = userProfile.birthMonth || 1;
+            heightInput.value = userProfile.height ? userProfile.height.toFixed(1) : '';
+            targetWeightInput.value = userProfile.targetWeight ? userProfile.targetWeight.toFixed(1) : '';
+            targetFatInput.value = userProfile.targetFat ? userProfile.targetFat.toFixed(1) : '';
           }
 
           if (Array.isArray(parsed.records)) {
             records = parsed.records.map(r => ({
               date: new Date(r.date),
               timeSlot: r.timeSlot,
-              weight: parseFloat(r.weight)
-            })).filter(r => !isNaN(r.date.getTime()) && !isNaN(r.weight));
+              weight: r.weight !== undefined && r.weight !== null ? parseFloat(r.weight) : null,
+              bodyFat: r.bodyFat !== undefined && r.bodyFat !== null ? parseFloat(r.bodyFat) : null
+            })).filter(r => !isNaN(r.date.getTime()) && (r.weight !== null || r.bodyFat !== null));
 
             saveRecords();
           }
@@ -659,20 +835,23 @@
         const d = new Date(r.date);
         d.setHours(0,0,0,0);
         return d.getTime();
-      }))).sort((a,b) => b - a);
+      }))).sort((a,b) => a - b);
 
       const today = new Date(); today.setHours(0,0,0,0);
       const yesterday = today.getTime() - 86400000;
 
-      if (dates[0] !== today.getTime() && dates[0] !== yesterday) return 0;
+      const latestDate = dates[dates.length - 1];
+      if (latestDate !== today.getTime() && latestDate !== yesterday) return 0;
 
       let streak = 0;
-      let checkDate = dates[0];
-      for (let d of dates) {
-        if (d === checkDate) {
+      let checkDate = latestDate;
+      for (let i = dates.length - 1; i >= 0; i--) {
+        if (dates[i] === checkDate) {
           streak++;
           checkDate -= 86400000;
-        } else break;
+        } else if (dates[i] < checkDate) {
+          break;
+        }
       }
       return streak;
     }
@@ -680,9 +859,11 @@
     function loadRecordToController() {
       const rec = records.find(r => isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot);
       if (rec) {
-        weightInput.value = rec.weight.toFixed(1);
+        weightInput.value = rec.weight !== null && rec.weight !== undefined ? rec.weight.toFixed(1) : '';
+        fatInput.value = rec.bodyFat !== null && rec.bodyFat !== undefined ? rec.bodyFat.toFixed(1) : '';
       } else {
         weightInput.value = '';
+        fatInput.value = '';
       }
     }
 
@@ -690,7 +871,7 @@
       comboText.innerText = `${calculateStreak()} DAYS COMBO!`;
       renderInputSection();
       renderCalendar();
-      renderBMI();
+      renderReport();
     }
 
     function renderInputSection() {
@@ -702,13 +883,13 @@
       amBtn.classList.toggle('active', selectedTimeSlot === 'am');
       pmBtn.classList.toggle('active', selectedTimeSlot === 'pm');
 
-      const hasAm = records.some(r => isSameDay(r.date, selectedDate) && r.timeSlot === 'am');
-      const hasPm = records.some(r => isSameDay(r.date, selectedDate) && r.timeSlot === 'pm');
+      const hasAm = records.some(r => isSameDay(r.date, selectedDate) && r.timeSlot === 'am' && (r.weight !== null || r.bodyFat !== null));
+      const hasPm = records.some(r => isSameDay(r.date, selectedDate) && r.timeSlot === 'pm' && (r.weight !== null || r.bodyFat !== null));
       amDot.style.display = hasAm ? 'inline-block' : 'none';
       pmDot.style.display = hasPm ? 'inline-block' : 'none';
 
       const rec = records.find(r => isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot);
-      if (rec) {
+      if (rec && (rec.weight !== null || rec.bodyFat !== null)) {
         inputCard.classList.add('recorded');
         saveBtn.innerText = 'UPDATE';
         delBtn.style.display = 'inline-block';
@@ -725,7 +906,7 @@
       monthTitle.innerText = `${year}/${String(month + 1).padStart(2, '0')}`;
 
       const firstDay = new Date(year, month, 1);
-      let firstDayWeekday = firstDay.getDay() - 1; // 0=Mon, 6=Sun
+      let firstDayWeekday = firstDay.getDay() - 1;
       if (firstDayWeekday < 0) firstDayWeekday = 6;
 
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -743,7 +924,7 @@
         cell.innerText = cellDate.getDate();
 
         const isCurrentMonth = cellDate.getMonth() === month;
-        const isRecorded = records.some(r => isSameDay(r.date, cellDate));
+        const isRecorded = records.some(r => isSameDay(r.date, cellDate) && (r.weight !== null || r.bodyFat !== null));
         const isSelected = isSameDay(cellDate, selectedDate);
         const isToday = isSameDay(cellDate, today);
 
@@ -754,8 +935,8 @@
 
         cell.onclick = () => {
           selectedDate = cellDate;
-          const hasAm = records.some(r => isSameDay(r.date, cellDate) && r.timeSlot === 'am');
-          const hasPm = records.some(r => isSameDay(r.date, cellDate) && r.timeSlot === 'pm');
+          const hasAm = records.some(r => isSameDay(r.date, cellDate) && r.timeSlot === 'am' && (r.weight !== null || r.bodyFat !== null));
+          const hasPm = records.some(r => isSameDay(r.date, cellDate) && r.timeSlot === 'pm' && (r.weight !== null || r.bodyFat !== null));
           if (hasAm && !hasPm) selectedTimeSlot = 'am';
           else if (!hasAm && hasPm) selectedTimeSlot = 'pm';
 
@@ -784,138 +965,240 @@
       const cellHeight = height / totalRows;
 
       const endDate = new Date(startDate.getTime() + (totalCells - 1) * 86400000);
+      
       const visibleRecords = records.filter(r => {
         const d = new Date(r.date); d.setHours(0,0,0,0);
-        return d >= startDate && d <= endDate;
-      });
+        return d >= startDate && d <= endDate && (r.weight !== null || r.bodyFat !== null);
+      }).sort((a, b) => a.date - b.date || (a.timeSlot === 'am' ? -1 : 1));
 
       if (visibleRecords.length === 0) return;
 
-      const weights = visibleRecords.map(r => r.weight);
-      let minW = Math.min(...weights);
-      let maxW = Math.max(...weights);
-      if (minW === maxW) { minW -= 1; maxW += 1; }
+      const weeksMap = {};
+      visibleRecords.forEach(r => {
+        const rDate = new Date(r.date); rDate.setHours(0,0,0,0);
+        const dayDiff = Math.round((rDate - startDate) / 86400000);
+        const row = Math.floor(dayDiff / 7);
+        if (!weeksMap[row]) weeksMap[row] = [];
+        weeksMap[row].push(r);
+      });
 
-      const rowPointsMap = {};
-
-      visibleRecords.sort((a,b) => a.date - b.date || (a.timeSlot === 'am' ? -1 : 1)).forEach(r => {
+      function getRecordCoordinates(r, row, weekRecords) {
         const rDate = new Date(r.date); rDate.setHours(0,0,0,0);
         const dayDiff = Math.round((rDate - startDate) / 86400000);
         const col = dayDiff % 7;
-        const row = Math.floor(dayDiff / 7);
 
-        const xOffset = r.timeSlot === 'am' ? cellWidth * 0.3 : cellWidth * 0.7;
-        const x = col * cellWidth + xOffset;
-
-        const normalized = (r.weight - minW) / (maxW - minW);
+        const colStartX = col * cellWidth;
+        const subIndex = r.timeSlot === 'am' ? 0 : 1;
+        const x = colStartX + (subIndex + 0.5) * (cellWidth / 2);
         const cellCenterY = row * cellHeight + cellHeight / 2;
-        const yOffset = (0.5 - normalized) * (cellHeight * 0.4);
-        const y = cellCenterY + yOffset;
+        return { x, cellCenterY, row };
+      }
 
-        if (!rowPointsMap[row]) rowPointsMap[row] = [];
-        rowPointsMap[row].push({x, y});
-      });
+      // 1. 体脂肪率の縦棒グラフ描画
+      const fatRecords = visibleRecords.filter(r => r.bodyFat !== null && r.bodyFat !== undefined);
+      if (fatRecords.length > 0) {
+        const fats = fatRecords.map(r => r.bodyFat);
+        let minF = Math.min(...fats);
+        let maxF = Math.max(...fats);
+        if (minF === maxF) { minF -= 5; maxF += 5; }
 
-      for (let row in rowPointsMap) {
-        const points = rowPointsMap[row];
-        if (points.length > 1) {
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(0, 255, 102, 0.86)';
-          ctx.lineWidth = 2;
-          points.forEach((pt, idx) => {
-            if (idx === 0) ctx.moveTo(pt.x, pt.y);
-            else ctx.lineTo(pt.x, pt.y);
+        Object.keys(weeksMap).forEach(rowKey => {
+          const row = parseInt(rowKey);
+          weeksMap[row].forEach(r => {
+            if (r.bodyFat === null || r.bodyFat === undefined) return;
+            const pos = getRecordCoordinates(r, row, weeksMap[row]);
+            const normalized = (r.bodyFat - minF) / (maxF - minF);
+            const cellBottomY = (row + 1) * cellHeight - 2;
+            const barHeight = Math.max(4, normalized * (cellHeight * 0.45));
+            const y = cellBottomY - barHeight;
+
+            const barWidth = (cellWidth / 2) * 0.95;
+            ctx.fillStyle = 'rgba(0, 255, 102, 0.4)';
+            ctx.fillRect(pos.x - barWidth / 2, y, barWidth, barHeight);
           });
-          ctx.stroke();
-        }
+        });
+      }
 
-        points.forEach(pt => {
-          ctx.beginPath();
-          ctx.fillStyle = '#00FF66';
-          ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
-          ctx.fill();
+      // 2. 体重の折れ線グラフ描画
+      const weightRecords = visibleRecords.filter(r => r.weight !== null && r.weight !== undefined);
+      if (weightRecords.length > 0) {
+        const weights = weightRecords.map(r => r.weight);
+        let minW = Math.min(...weights);
+        let maxW = Math.max(...weights);
+        if (minW === maxW) { minW -= 1; maxW += 1; }
+
+        Object.keys(weeksMap).forEach(rowKey => {
+          const row = parseInt(rowKey);
+          const weekWeights = weeksMap[row].filter(r => r.weight !== null && r.weight !== undefined);
+          if (weekWeights.length === 0) return;
+
+          const points = [];
+          weekWeights.forEach(r => {
+            const pos = getRecordCoordinates(r, row, weeksMap[row]);
+            const normalized = (r.weight - minW) / (maxW - minW);
+            const yOffset = (0.5 - normalized) * (cellHeight * 0.4);
+            const y = pos.cellCenterY + yOffset;
+            points.push({ x: pos.x, y });
+          });
+
+          if (points.length > 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 255, 102, 0.86)';
+            ctx.lineWidth = 2;
+            points.forEach((pt, idx) => {
+              if (idx === 0) ctx.moveTo(pt.x, pt.y);
+              else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+          }
+
+          points.forEach(pt => {
+            ctx.beginPath();
+            ctx.fillStyle = '#00FF66';
+            ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          });
         });
       }
     }
 
-    function renderBMI() {
-      let weight = parseFloat(weightInput.value);
-      if (isNaN(weight)) {
-        const rec = records.find(r => isSameDay(r.date, selectedDate) && r.timeSlot === selectedTimeSlot);
-        if (rec) weight = rec.weight;
-        else if (records.length > 0) weight = records[records.length - 1].weight;
-        else weight = null;
-      }
-
+    // 体型判定関数（マトリクス基準）
+    function getBodyType(weight, bodyFat, height) {
+      if (!weight) return 'NO DATA';
       let bmi = null;
-      if (userHeight && userHeight > 0 && weight && weight > 0) {
-        const hM = userHeight / 100.0;
+      if (height && height > 0) {
+        const hM = height / 100.0;
         bmi = weight / (hM * hM);
       }
 
-      let category = 'NO DATA';
-      let color = '#008833';
-
-      if (bmi !== null) {
-        bmiVal.innerText = bmi.toFixed(1);
-        if (bmi < 18.5) { category = 'UNDERWEIGHT'; color = '#00CCFF'; }
-        else if (bmi < 25.0) { category = 'NORMAL'; color = '#00FF66'; }
-        else if (bmi < 30.0) { category = 'OVERWEIGHT'; color = '#FFCC00'; }
-        else { category = 'OBESE'; color = '#FF4444'; }
-      } else {
-        bmiVal.innerText = '--.-';
+      if (bodyFat === null || bodyFat === undefined) {
+        return 'NEED BFP DATA';
       }
 
-      bmiBadge.innerText = category;
-      bmiBadge.style.color = color;
-      bmiBadge.style.borderColor = color;
-      bmiBadge.style.background = `${color}22`;
+      if (bodyFat >= 35 || (bmi !== null && bmi >= 25.0 && bodyFat >= 30)) {
+        return '肥満型';
+      }
+      if (bmi !== null && bmi < 25.0 && bodyFat >= 30) {
+        return '隠れ肥満型';
+      }
+      if (bmi !== null && bmi >= 18.5 && bmi < 25.0 && bodyFat >= 20 && bodyFat < 30) {
+        return '健康体型';
+      }
+      if (bmi !== null && bmi >= 25.0 && bodyFat < 30) {
+        return '筋肉質';
+      }
 
-      drawBmiBar(bmi, color);
+      return 'やせ型';
     }
 
-    function drawBmiBar(bmi, barColor) {
-      const container = bmiCanvas.parentElement;
-      bmiCanvas.width = container.clientWidth;
-      bmiCanvas.height = container.clientHeight;
-      const ctx = bmiCanvas.getContext('2d');
-      ctx.clearRect(0, 0, bmiCanvas.width, bmiCanvas.height);
+    function formatDateShort(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}/${m}/${d}`;
+    }
 
-      const minBmi = 15.0, maxBmi = 35.0;
-      const w = bmiCanvas.width;
-      const h = bmiCanvas.height;
+    function renderReport() {
+      const weightRecs = records.filter(r => r.weight !== null && r.weight !== undefined).sort((a,b) => a.date - b.date || (a.timeSlot === 'am' ? -1 : 1));
+      const fatRecs = records.filter(r => r.bodyFat !== null && r.bodyFat !== undefined).sort((a,b) => a.date - b.date || (a.timeSlot === 'am' ? -1 : 1));
 
-      // Lines for 18.5 & 25.0
-      ctx.strokeStyle = '#004411';
-      ctx.lineWidth = 1;
+      if (weightRecs.length === 0) {
+        repBmi.innerText = '--.-';
+        repBmr.innerText = '-- kcal';
+        repWeeklyChange.innerText = '-- kg';
+        repMonthlyChange.innerText = '-- kg';
+        repBodyType.innerText = '--';
+        repLowestWeight.innerText = '-- kg (--/--/--)';
+        repHighestWeight.innerText = '-- kg (--/--/--)';
+        repWeightToGoal.innerText = '-- kg';
+        repFatToGoal.innerText = '-- %';
+        repComment.innerText = '&gt; TIPS: データを記録するとダイエットに役立つアドバイスが表示されます。';
+        return;
+      }
 
-      const r18 = (18.5 - minBmi) / (maxBmi - minBmi);
-      const r25 = (25.0 - minBmi) / (maxBmi - minBmi);
+      let latestWeight = weightRecs[weightRecs.length - 1].weight;
+      let latestFat = fatRecs.length > 0 ? fatRecs[fatRecs.length - 1].bodyFat : null;
 
-      ctx.beginPath();
-      ctx.moveTo(w * r18, 0); ctx.lineTo(w * r18, h);
-      ctx.moveTo(w * r25, 0); ctx.lineTo(w * r25, h);
-      ctx.stroke();
+      // BMI計算
+      if (userProfile.height && userProfile.height > 0) {
+        const hM = userProfile.height / 100.0;
+        const currentBmi = latestWeight / (hM * hM);
+        repBmi.innerText = currentBmi.toFixed(1);
+      } else {
+        repBmi.innerText = '--.-';
+      }
 
-      if (bmi === null) return;
+      // 週間・月間増減量
+      const latestDate = weightRecs[weightRecs.length - 1].date.getTime();
+      const weekAgoDate = latestDate - (7 * 86400000);
+      const monthAgoDate = latestDate - (30 * 86400000);
 
-      const clamped = Math.max(minBmi, Math.min(maxBmi, bmi));
-      const ratio = (clamped - minBmi) / (maxBmi - minBmi);
-      const fillW = w * ratio;
+      const weekRec = weightRecs.filter(r => r.date.getTime() <= weekAgoDate).pop() || weightRecs[0];
+      const monthRec = weightRecs.filter(r => r.date.getTime() <= monthAgoDate).pop() || weightRecs[0];
 
-      ctx.fillStyle = barColor;
-      ctx.fillRect(0, 0, fillW, h);
+      const wDiff = latestWeight - weekRec.weight;
+      const mDiff = latestWeight - monthRec.weight;
 
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(fillW, 0); ctx.lineTo(fillW, h);
-      ctx.stroke();
+      repWeeklyChange.innerText = (wDiff > 0 ? '+' : '') + wDiff.toFixed(1) + ' kg';
+      repMonthlyChange.innerText = (mDiff > 0 ? '+' : '') + mDiff.toFixed(1) + ' kg';
+
+      // 基礎代謝量 (BMR)
+      if (userProfile.height) {
+        const now = new Date();
+        let age = now.getFullYear() - userProfile.birthYear;
+        if (now.getMonth() + 1 < userProfile.birthMonth) age--;
+        if (age < 10) age = 25;
+
+        let bmr = 0;
+        if (userProfile.gender === 'male') {
+          bmr = 13.397 * latestWeight + 4.799 * userProfile.height - 5.677 * age + 88.362;
+        } else {
+          bmr = 9.247 * latestWeight + 3.098 * userProfile.height - 4.330 * age + 447.593;
+        }
+        repBmr.innerText = `${Math.round(bmr)} kcal`;
+      } else {
+        repBmr.innerText = '-- kcal';
+      }
+
+      // 最小体重 ＆ 最大体重の計算
+      let lowest = weightRecs[0];
+      let highest = weightRecs[0];
+      weightRecs.forEach(r => {
+        if (r.weight < lowest.weight) lowest = r;
+        if (r.weight > highest.weight) highest = r;
+      });
+
+      repLowestWeight.innerText = `${lowest.weight.toFixed(1)} kg (${formatDateShort(lowest.date)})`;
+      repHighestWeight.innerText = `${highest.weight.toFixed(1)} kg (${formatDateShort(highest.date)})`;
+
+      // 目標値までの差
+      if (userProfile.targetWeight !== null && !isNaN(userProfile.targetWeight)) {
+        const diffTw = latestWeight - userProfile.targetWeight;
+        repWeightToGoal.innerText = (diffTw > 0 ? '+' : '') + diffTw.toFixed(1) + ' kg';
+      } else {
+        repWeightToGoal.innerText = 'SET TARGET W';
+      }
+
+      if (userProfile.targetFat !== null && !isNaN(userProfile.targetFat) && latestFat !== null) {
+        const diffTf = latestFat - userProfile.targetFat;
+        repFatToGoal.innerText = (diffTf > 0 ? '+' : '') + diffTf.toFixed(1) + ' %';
+      } else {
+        repFatToGoal.innerText = 'SET TARGET BFP';
+      }
+
+      // BODY TYPE 最新表示
+      const latestType = getBodyType(latestWeight, latestFat, userProfile.height);
+      if (latestFat === null || latestFat === undefined) {
+        repBodyType.innerText = '体脂肪率を入力してください';
+        repComment.innerHTML = `&gt; TIPS: 体脂肪率(BFP)を入力すると「${latestType}」などの詳細な体型診断が表示されます。`;
+      } else {
+        repBodyType.innerText = latestType;
+        repComment.innerHTML = `&gt; TIPS: 現在の体型は「${latestType}」です。基礎代謝量を維持しながらバランスの良い食事と適度な運動を心がけましょう。`;
+      }
     }
 
     window.addEventListener('resize', () => {
       renderCalendar();
-      renderBMI();
     });
 
     window.onload = init;
