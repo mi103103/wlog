@@ -296,11 +296,8 @@
       color: #00FF66;
     }
     .report-comment {
-      margin-top: 8px;
       font-size: 12px;
       color: #00CC55;
-      border-top: 1px dashed #005522;
-      padding-top: 6px;
       line-height: 1.4;
     }
 
@@ -389,10 +386,10 @@
       <div class="report-list">
         <div class="report-item">
           <div class="report-item-title">&gt; BMI</div>
-          <div class="report-item-value" id="repBmi">--.-</div>
+          <div class="report-item-value" id="repBmi">--.- [--]</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; BMR</div>
+          <div class="report-item-title">&gt; [BMR（Basal Metabolic Rate）]</div>
           <div class="report-item-value" id="repBmr">-- kcal</div>
         </div>
         <div class="report-item">
@@ -423,9 +420,11 @@
           <div class="report-item-title">&gt; BFP TO GOAL</div>
           <div class="report-item-value" id="repFatToGoal">-- %</div>
         </div>
-      </div>
-      <div class="report-comment" id="repComment" style="margin-top: 8px;">
-        &gt; TIPS: データを記録するとダイエットに役立つアドバイスが表示されます。
+        <!-- TIPS 項目（他の項目と同じウィンドウ枠レイアウト） -->
+        <div class="report-item">
+          <div class="report-item-title">&gt; TIPS</div>
+          <div class="report-item-value report-comment" id="repComment">データを記録するとダイエットに役立つアドバイスが表示されます。</div>
+        </div>
       </div>
     </div>
 
@@ -668,13 +667,13 @@
       if (rawF) {
         let valF = parseFloat(rawF);
         if (!isNaN(valF)) {
+          if (!rawF.includes('.') && valF >= 100) valF = valF / 10;
           fatInput.value = valF.toFixed(1);
         }
       }
     }
 
     function setupEvents() {
-      // PERSONAL DATA トグルイベント
       personalDataToggle.onclick = () => {
         const isOpen = personalDataBody.classList.toggle('open');
         toggleIndicator.innerText = isOpen ? '[-]' : '[+]';
@@ -1062,7 +1061,7 @@
       }
     }
 
-    // 体型判定関数（マトリクス基準）
+    // 体型判定関数（マトリクス基準・英語表記）
     function getBodyType(weight, bodyFat, height) {
       if (!weight) return 'NO DATA';
       let bmi = null;
@@ -1076,19 +1075,19 @@
       }
 
       if (bodyFat >= 35 || (bmi !== null && bmi >= 25.0 && bodyFat >= 30)) {
-        return '肥満型';
+        return 'OBESE';
       }
       if (bmi !== null && bmi < 25.0 && bodyFat >= 30) {
-        return '隠れ肥満型';
+        return 'HIDDEN OBESE';
       }
       if (bmi !== null && bmi >= 18.5 && bmi < 25.0 && bodyFat >= 20 && bodyFat < 30) {
-        return '健康体型';
+        return 'HEALTHY';
       }
       if (bmi !== null && bmi >= 25.0 && bodyFat < 30) {
-        return '筋肉質';
+        return 'MUSCULAR';
       }
 
-      return 'やせ型';
+      return 'UNDERWEIGHT';
     }
 
     function formatDateShort(dateObj) {
@@ -1103,7 +1102,7 @@
       const fatRecs = records.filter(r => r.bodyFat !== null && r.bodyFat !== undefined).sort((a,b) => a.date - b.date || (a.timeSlot === 'am' ? -1 : 1));
 
       if (weightRecs.length === 0) {
-        repBmi.innerText = '--.-';
+        repBmi.innerText = '--.- [--]';
         repBmr.innerText = '-- kcal';
         repWeeklyChange.innerText = '-- kg';
         repMonthlyChange.innerText = '-- kg';
@@ -1112,20 +1111,26 @@
         repHighestWeight.innerText = '-- kg (--/--/--)';
         repWeightToGoal.innerText = '-- kg';
         repFatToGoal.innerText = '-- %';
-        repComment.innerText = '&gt; TIPS: データを記録するとダイエットに役立つアドバイスが表示されます。';
+        repComment.innerText = 'データを記録するとダイエットに役立つアドバイスが表示されます。';
         return;
       }
 
       let latestWeight = weightRecs[weightRecs.length - 1].weight;
       let latestFat = fatRecs.length > 0 ? fatRecs[fatRecs.length - 1].bodyFat : null;
 
-      // BMI計算
+      // BMI計算 & 判定基準（日本肥満学会）
       if (userProfile.height && userProfile.height > 0) {
         const hM = userProfile.height / 100.0;
         const currentBmi = latestWeight / (hM * hM);
-        repBmi.innerText = currentBmi.toFixed(1);
+        
+        let bmiStatus = 'NORMAL';
+        if (currentBmi < 18.5) bmiStatus = 'UNDERWEIGHT';
+        else if (currentBmi >= 25.0 && currentBmi < 30.0) bmiStatus = 'OVERWEIGHT';
+        else if (currentBmi >= 30.0) bmiStatus = 'OBESE';
+
+        repBmi.innerText = `${currentBmi.toFixed(1)} [${bmiStatus}]`;
       } else {
-        repBmi.innerText = '--.-';
+        repBmi.innerText = '--.- [--]';
       }
 
       // 週間・月間増減量
@@ -1186,14 +1191,14 @@
         repFatToGoal.innerText = 'SET TARGET BFP';
       }
 
-      // BODY TYPE 最新表示
+      // BODY TYPE 最新表示（英語）
       const latestType = getBodyType(latestWeight, latestFat, userProfile.height);
       if (latestFat === null || latestFat === undefined) {
-        repBodyType.innerText = '体脂肪率を入力してください';
-        repComment.innerHTML = `&gt; TIPS: 体脂肪率(BFP)を入力すると「${latestType}」などの詳細な体型診断が表示されます。`;
+        repBodyType.innerText = 'NEED BFP DATA';
+        repComment.innerText = '体脂肪率を入力すると体型診断が表示されます。';
       } else {
         repBodyType.innerText = latestType;
-        repComment.innerHTML = `&gt; TIPS: 現在の体型は「${latestType}」です。基礎代謝量を維持しながらバランスの良い食事と適度な運動を心がけましょう。`;
+        repComment.innerHTML = `現在の体型タイプは [${latestType}] です。目標達成に向けて継続的な記録を続けましょう。`;
       }
     }
 
