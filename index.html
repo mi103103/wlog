@@ -183,7 +183,7 @@
       color: #000;
     }
 
-    /* グラフウィンドウ（上下の線のみ） */
+    /* グラフウィンドウ（高さ1.5倍：220px -> 330px） */
     .graph-card {
       background: #070A07;
       border-top: 1px solid #005522;
@@ -212,7 +212,7 @@
     .graph-wrapper {
       display: flex;
       position: relative;
-      height: 220px;
+      height: 330px;
       border-top: 1px solid #003311;
       border-bottom: 1px solid #003311;
       border-left: none;
@@ -220,7 +220,7 @@
       background: #050805;
     }
     .y-axis-box {
-      width: 44px;
+      width: 36px;
       height: 100%;
       border-right: 1px solid #005522;
       background: #070A07;
@@ -329,9 +329,9 @@
     <div class="card" id="inputCard">
       <div class="card-row-header">
         <div class="card-row-left">
-          <span class="input-label">&gt; DATE:</span>
+          <span class="input-label">DATE:</span>
           <div style="position: relative; display: inline-flex; align-items: center;">
-            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-17 08:46" style="width: 155px;">
+            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-17 08:57" style="width: 155px;">
             <span id="calendarIcon" style="position: absolute; right: 6px; color: #00FF66; font-size: 13px; cursor: pointer;">📅</span>
             <!-- 裏で確実に動くネイティブ日時ピッカー -->
             <input type="datetime-local" id="nativePicker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
@@ -342,7 +342,7 @@
       </div>
       <form id="weightForm" action="javascript:void(0);">
         <div class="card-row">
-          <span class="input-label" style="width: 85px;">&gt; WEIGHT:</span>
+          <span class="input-label" style="width: 85px;">WEIGHT:</span>
           <div class="input-box">
             <input type="number" step="0.1" class="term-input" id="weightInput" placeholder="00.0" inputmode="decimal" style="font-size:22px; background:transparent; border:none;">
             <span class="suffix">KG</span>
@@ -355,7 +355,7 @@
     <!-- 3. 折れ線グラフウィンドウ -->
     <div class="graph-card">
       <div class="graph-header">
-        <span class="graph-title">&gt; WEIGHT TREND</span>
+        <span class="graph-title">WEIGHT TREND</span>
         <span class="graph-info" id="graphRangeText">LATEST 60 LOGS</span>
       </div>
       <div class="graph-wrapper" id="graphWrapper">
@@ -372,47 +372,47 @@
     <!-- 4. REPORT ウィンドウ -->
     <div class="card">
       <div style="margin-bottom: 6px;">
-        <span class="input-label" style="font-size: 14px;">&gt; REPORT:</span>
+        <span class="input-label" style="font-size: 14px;">REPORT:</span>
       </div>
       <div class="report-list">
         <div class="report-item">
-          <div class="report-item-title">&gt; BMI</div>
+          <div class="report-item-title">BMI</div>
           <div class="report-item-value" id="repBmi">--.- [--]</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; [BMR（Basal Metabolic Rate）]</div>
+          <div class="report-item-title">BMR（Basal Metabolic Rate）</div>
           <div class="report-item-value" id="repBmr">-- kcal</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; WEEKLY CHANGE</div>
+          <div class="report-item-title">WEEKLY CHANGE</div>
           <div class="report-item-value" id="repWeeklyChange">-- kg</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; MONTHLY CHANGE</div>
+          <div class="report-item-title">MONTHLY CHANGE</div>
           <div class="report-item-value" id="repMonthlyChange">-- kg</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; BODY TYPE</div>
+          <div class="report-item-title">BODY TYPE</div>
           <div class="report-item-value" id="repBodyType">--</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; LOWEST WEIGHT</div>
+          <div class="report-item-title">LOWEST WEIGHT</div>
           <div class="report-item-value" id="repLowestWeight">-- kg (--/--/--)</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; HIGHEST WEIGHT</div>
+          <div class="report-item-title">HIGHEST WEIGHT</div>
           <div class="report-item-value" id="repHighestWeight">-- kg (--/--/--)</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; WEIGHT TO GOAL</div>
+          <div class="report-item-title">WEIGHT TO GOAL</div>
           <div class="report-item-value" id="repWeightToGoal">-- kg</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; BFP TO GOAL</div>
+          <div class="report-item-title">BFP TO GOAL</div>
           <div class="report-item-value" id="repFatToGoal">-- %</div>
         </div>
         <div class="report-item">
-          <div class="report-item-title">&gt; TIPS</div>
+          <div class="report-item-title">TIPS</div>
           <div class="report-item-value report-comment" id="repComment">データを記録するとダイエットに役立つアドバイスが表示されます。</div>
         </div>
       </div>
@@ -421,12 +421,12 @@
     <!-- 5. PERSONAL DATA ウィンドウ（トグル式） -->
     <div class="card">
       <div class="collapse-header" id="personalDataToggle">
-        <span class="input-label" style="font-size: 14px;">&gt; PERSONAL DATA <span id="toggleIndicator" style="font-size: 12px; color: #00CC55;">[+]</span></span>
+        <span class="input-label" style="font-size: 14px;">PERSONAL DATA <span id="toggleIndicator" style="font-size: 12px; color: #00CC55;">[+]</span></span>
       </div>
       <div class="collapse-body" id="personalDataBody">
         <!-- GENDER -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">&gt; GENDER:</span>
+          <span class="input-label" style="width: 120px;">GENDER:</span>
           <select class="term-select" id="genderSelect">
             <option value="male">MALE</option>
             <option value="female">FEMALE</option>
@@ -434,13 +434,13 @@
         </div>
         <!-- BIRTH YEAR / MONTH -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">&gt; BIRTH DATE:</span>
+          <span class="input-label" style="width: 120px;">BIRTH DATE:</span>
           <select class="term-select" id="birthYearSelect" style="flex:1.5;"></select>
           <select class="term-select" id="birthMonthSelect" style="flex:1;"></select>
         </div>
         <!-- HEIGHT -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">&gt; HEIGHT:</span>
+          <span class="input-label" style="width: 120px;">HEIGHT:</span>
           <div class="input-box">
             <input type="number" step="0.1" class="term-input" id="heightInput" placeholder="000.0" inputmode="decimal">
             <span class="suffix">CM</span>
@@ -448,7 +448,7 @@
         </div>
         <!-- TARGET WEIGHT -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">&gt; TARGET W:</span>
+          <span class="input-label" style="width: 120px;">TARGET W:</span>
           <div class="input-box">
             <input type="number" step="0.1" class="term-input" id="targetWeightInput" placeholder="00.0" inputmode="decimal">
             <span class="suffix">KG</span>
@@ -456,7 +456,7 @@
         </div>
         <!-- TARGET BFP -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">&gt; TARGET BFP:</span>
+          <span class="input-label" style="width: 120px;">TARGET BFP:</span>
           <div class="input-box">
             <input type="number" step="0.1" class="term-input" id="targetFatInput" placeholder="00.0" inputmode="decimal">
             <span class="suffix">%</span>
@@ -469,7 +469,7 @@
     <!-- 6. BACKUP / DATA ウィンドウ -->
     <div class="card">
       <div style="margin-bottom: 8px;">
-        <span class="input-label" style="font-size: 14px;">&gt; DATA MANAGEMENT:</span>
+        <span class="input-label" style="font-size: 14px;">DATA MANAGEMENT:</span>
       </div>
       <div class="card-row">
         <button class="btn btn-sub" id="exportBtn">EXPORT JSON</button>
@@ -562,7 +562,6 @@
       return `${y}-${m}-${d} ${hh}:${mm}`;
     }
 
-    // "YYYY-MM-DD HH:MM" から Date オブジェクトへ変換
     function parseDateTime(str) {
       if (!str) return null;
       const cleaned = str.trim().replace(/\//g, '-');
@@ -708,18 +707,6 @@
       renderReport();
     }
 
-    function autoCorrectInput() {
-      const rawW = weightInput.value.trim();
-      if (rawW) {
-        let valW = parseFloat(rawW);
-        if (!isNaN(valW)) {
-          if (!rawW.includes('.') && valW >= 300) valW = valW / 10;
-          weightInput.value = valW.toFixed(1);
-        }
-      }
-    }
-
-    // ズーム変更と中心位置の維持処理
     function applyZoom(newVisibleCount, focalClientX) {
       const sortedCount = records.filter(r => r.weight !== null && r.weight !== undefined).length;
       const maxVisible = Math.max(DEFAULT_VISIBLE_COUNT, sortedCount);
@@ -756,7 +743,6 @@
         render(true);
       };
 
-      // NOWボタンクリック時の即座な現在時刻同期
       nowBtn.onclick = () => {
         selectedDateTimeStr = formatDateTime(new Date());
         dateTimeInput.value = selectedDateTimeStr;
@@ -765,7 +751,6 @@
         renderInputSection();
       };
 
-      // カレンダーアイコンまたは入力欄のクリックでネイティブ日時ピッカーを起動
       const triggerPicker = () => {
         if (typeof nativePicker.showPicker === 'function') {
           try {
@@ -781,7 +766,6 @@
       calendarIcon.onclick = triggerPicker;
       dateTimeInput.onclick = triggerPicker;
 
-      // ネイティブピッカーで日時が選択されたときの処理
       nativePicker.onchange = () => {
         if (nativePicker.value) {
           const d = new Date(nativePicker.value);
@@ -796,7 +780,6 @@
 
       weightForm.onsubmit = (e) => {
         e.preventDefault();
-        autoCorrectInput();
 
         const targetDate = parseDateTime(dateTimeInput.value);
         if (!targetDate) {
@@ -832,7 +815,6 @@
         render(true);
       };
 
-      // ピンチアウト・ピンチインでの拡大縮小（タッチデバイス）
       graphScrollContainer.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           isPinching = true;
@@ -866,7 +848,6 @@
         }
       }, { passive: true });
 
-      // PCでのCtrl+ホイール拡大縮小対応
       graphScrollContainer.addEventListener('wheel', (e) => {
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
@@ -875,7 +856,6 @@
         }
       }, { passive: false });
 
-      // グラフ上のポイントタップで該当データを編集読み込み
       graphCanvas.onclick = (e) => {
         if (isPinching || chartPoints.length === 0) return;
         const rect = graphCanvas.getBoundingClientRect();
@@ -1051,17 +1031,15 @@
       }
     }
 
-    // 折れ線グラフ描画（ピンチズーム対応・目標値点線描画）
     function renderLineGraph(scrollToLatest = false) {
       const sorted = records
         .filter(r => r.weight !== null && r.weight !== undefined)
         .sort((a, b) => a.date - b.date);
 
       const viewportWidth = graphScrollContainer.clientWidth || 300;
-      const height = graphScrollContainer.clientHeight || 220;
+      const height = graphScrollContainer.clientHeight || 330;
 
-      // Y軸キャンバスの初期化
-      const yAxisWidth = yAxisCanvas.parentElement.clientWidth || 44;
+      const yAxisWidth = yAxisCanvas.parentElement.clientWidth || 36;
       yAxisCanvas.width = yAxisWidth;
       yAxisCanvas.height = height;
       const yCtx = yAxisCanvas.getContext('2d');
@@ -1083,8 +1061,7 @@
         return;
       }
 
-      // 現在のズーム倍率（visibleLogCount）に応じたステップ幅を計算
-      const padLeft = 14;
+      const padLeft = 8;
       const padRight = 18;
       const padTop = 22;
       const padBottom = 28;
@@ -1102,7 +1079,6 @@
       const displayCountLabel = Math.round(visibleLogCount);
       graphRangeText.innerText = `TOTAL ${sorted.length} LOGS (${displayCountLabel}/VIEW)`;
 
-      // 全データと目標体重を含めて縦軸スケールを決定
       const scaleValues = sorted.map(r => r.weight);
       if (hasTargetW) {
         scaleValues.push(userProfile.targetWeight);
@@ -1119,7 +1095,6 @@
         maxW += margin;
       }
 
-      // 水平グリッド線と固定Y軸ラベルの描画（5分割）
       const gridSteps = 4;
       yCtx.fillStyle = '#00CC55';
       yCtx.font = '10px monospace';
@@ -1131,10 +1106,8 @@
         const y = padTop + ratio * plotHeight;
         const val = maxW - ratio * (maxW - minW);
 
-        // Y軸ラベル
-        yCtx.fillText(val.toFixed(1), yAxisWidth - 5, y);
+        yCtx.fillText(val.toFixed(1), yAxisWidth - 2, y);
 
-        // 横グリッド線
         ctx.strokeStyle = 'rgba(0, 85, 34, 0.45)';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -1143,7 +1116,6 @@
         ctx.stroke();
       }
 
-      // 目標体重ラインの描画（テキストなし・点線のみ）
       if (hasTargetW) {
         const normTargetY = (userProfile.targetWeight - minW) / (maxW - minW);
         const targetY = padTop + (1 - normTargetY) * plotHeight;
@@ -1161,7 +1133,6 @@
 
       if (sorted.length === 0) return;
 
-      // 各データポイントの座標算出（右端に最新データが来る配置）
       const startX = totalWidth - padRight - (sorted.length - 1) * stepX;
 
       sorted.forEach((r, idx) => {
@@ -1171,7 +1142,6 @@
         chartPoints.push({ x, y, record: r });
       });
 
-      // X軸の日付目盛り（ズーム倍率に応じてラベル間隔を自動調整）
       ctx.fillStyle = '#008833';
       ctx.font = '10px monospace';
       ctx.textAlign = 'center';
@@ -1183,7 +1153,6 @@
         const isLast = idx === chartPoints.length - 1;
         const reverseIdx = chartPoints.length - 1 - idx;
         if (isLast || reverseIdx % tickInterval === 0) {
-          // 縦補助線
           ctx.strokeStyle = 'rgba(0, 85, 34, 0.35)';
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -1191,14 +1160,12 @@
           ctx.lineTo(pt.x, padTop + plotHeight);
           ctx.stroke();
 
-          // 日付ラベル (MM/DD)
           const mm = String(pt.record.date.getMonth() + 1).padStart(2, '0');
           const dd = String(pt.record.date.getDate()).padStart(2, '0');
           ctx.fillText(`${mm}/${dd}`, pt.x, padTop + plotHeight + 8);
         }
       });
 
-      // 折れ線の下の薄いグラデーション塗りつぶし
       if (chartPoints.length > 1) {
         const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotHeight);
         grad.addColorStop(0, 'rgba(0, 255, 102, 0.22)');
@@ -1213,7 +1180,6 @@
         ctx.fill();
       }
 
-      // 折れ線本体
       if (chartPoints.length > 1) {
         ctx.beginPath();
         ctx.strokeStyle = '#00FF66';
@@ -1225,7 +1191,6 @@
         ctx.stroke();
       }
 
-      // データポイント描画
       const selectedTarget = parseDateTime(selectedDateTimeStr);
       chartPoints.forEach((pt, idx) => {
         const isSelected = selectedTarget && isSameDateTimeMinute(pt.record.date, selectedTarget);
@@ -1245,13 +1210,11 @@
         }
       });
 
-      // デフォルトでは最新（右端）が表示されるようにスクロール位置を設定
       if (scrollToLatest) {
         graphScrollContainer.scrollLeft = totalWidth;
       }
     }
 
-    // 体型判定関数（マトリクス基準・英語表記）
     function getBodyType(weight, bodyFat, height) {
       if (!weight) return 'NO DATA';
       let bmi = null;
@@ -1308,7 +1271,6 @@
       let latestWeight = weightRecs[weightRecs.length - 1].weight;
       let latestFat = fatRecs.length > 0 ? fatRecs[fatRecs.length - 1].bodyFat : null;
 
-      // BMI計算 & 判定基準（日本肥満学会）
       if (userProfile.height && userProfile.height > 0) {
         const hM = userProfile.height / 100.0;
         const currentBmi = latestWeight / (hM * hM);
@@ -1323,7 +1285,6 @@
         repBmi.innerText = '--.- [--]';
       }
 
-      // 週間・月間増減量
       const latestDate = weightRecs[weightRecs.length - 1].date.getTime();
       const weekAgoDate = latestDate - (7 * 86400000);
       const monthAgoDate = latestDate - (30 * 86400000);
@@ -1337,7 +1298,6 @@
       repWeeklyChange.innerText = (wDiff > 0 ? '+' : '') + wDiff.toFixed(1) + ' kg';
       repMonthlyChange.innerText = (mDiff > 0 ? '+' : '') + mDiff.toFixed(1) + ' kg';
 
-      // 基礎代謝量 (BMR)
       if (userProfile.height) {
         const now = new Date();
         let age = now.getFullYear() - userProfile.birthYear;
@@ -1355,7 +1315,6 @@
         repBmr.innerText = '-- kcal';
       }
 
-      // 最小体重 ＆ 最大体重の計算
       let lowest = weightRecs[0];
       let highest = weightRecs[0];
       weightRecs.forEach(r => {
@@ -1366,7 +1325,6 @@
       repLowestWeight.innerText = `${lowest.weight.toFixed(1)} kg (${formatDateShort(lowest.date)})`;
       repHighestWeight.innerText = `${highest.weight.toFixed(1)} kg (${formatDateShort(highest.date)})`;
 
-      // 目標値までの差
       if (userProfile.targetWeight !== null && !isNaN(userProfile.targetWeight)) {
         const diffTw = latestWeight - userProfile.targetWeight;
         repWeightToGoal.innerText = (diffTw > 0 ? '+' : '') + diffTw.toFixed(1) + ' kg';
@@ -1381,7 +1339,6 @@
         repFatToGoal.innerText = 'SET TARGET BFP';
       }
 
-      // BODY TYPE 最新表示（英語）
       const latestType = getBodyType(latestWeight, latestFat, userProfile.height);
       if (latestFat === null || latestFat === undefined) {
         repBodyType.innerText = 'NEED BFP DATA';
