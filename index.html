@@ -41,6 +41,9 @@
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       margin-bottom: 12px;
+      border-top: 1px solid #008833;
+      border-bottom: 1px solid #008833;
+      padding: 6px 0;
     }
     .header-title {
       font-size: 15px;
@@ -69,16 +72,20 @@
       text-align: right;
     }
 
-    /* ウィンドウ共通 */
+    /* ウィンドウ共通（上下の線のみ） */
     .card {
       background: #101610;
-      border: 1px solid #008833;
-      border-radius: 4px;
-      padding: 12px;
+      border-top: 1px solid #008833;
+      border-bottom: 1px solid #008833;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      padding: 12px 4px;
       margin-bottom: 12px;
     }
     .card.recorded {
-      border-color: #00FF66;
+      border-top-color: #00FF66;
+      border-bottom-color: #00FF66;
     }
     .card-row {
       display: flex;
@@ -129,11 +136,11 @@
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
-      padding: 4px 8px;
+      padding: 4px 28px 4px 8px;
       border-radius: 2px;
-      color-scheme: dark;
+      cursor: pointer;
     }
     .suffix {
       color: #00CC55;
@@ -176,12 +183,15 @@
       color: #000;
     }
 
-    /* グラフウィンドウ */
+    /* グラフウィンドウ（上下の線のみ） */
     .graph-card {
       background: #070A07;
-      border: 1px solid #005522;
-      border-radius: 4px;
-      padding: 12px;
+      border-top: 1px solid #005522;
+      border-bottom: 1px solid #005522;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      padding: 12px 4px;
       margin-bottom: 12px;
     }
     .graph-header {
@@ -203,7 +213,10 @@
       display: flex;
       position: relative;
       height: 220px;
-      border: 1px solid #003311;
+      border-top: 1px solid #003311;
+      border-bottom: 1px solid #003311;
+      border-left: none;
+      border-right: none;
       background: #050805;
     }
     .y-axis-box {
@@ -224,6 +237,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
       position: relative;
     }
     .graph-scroll-container::-webkit-scrollbar {
@@ -257,9 +271,12 @@
     }
     .report-item {
       background: #070A07;
-      border: 1px solid #005522;
-      padding: 8px;
-      border-radius: 2px;
+      border-top: 1px solid #005522;
+      border-bottom: 1px solid #005522;
+      border-left: none;
+      border-right: none;
+      padding: 8px 4px;
+      border-radius: 0;
     }
     .report-item-title {
       font-size: 11px;
@@ -313,7 +330,13 @@
       <div class="card-row-header">
         <div class="card-row-left">
           <span class="input-label">&gt; DATE:</span>
-          <input type="text" class="date-time-input" id="dateTimeInput" placeholder="2026-11-12 00:00" style="width: 165px;">
+          <div style="position: relative; display: inline-flex; align-items: center;">
+            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-17 08:46" style="width: 155px;">
+            <span id="calendarIcon" style="position: absolute; right: 6px; color: #00FF66; font-size: 13px; cursor: pointer;">📅</span>
+            <!-- 裏で確実に動くネイティブ日時ピッカー -->
+            <input type="datetime-local" id="nativePicker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+          </div>
+          <button type="button" class="btn btn-sub" id="nowBtn" style="padding: 4px 8px; font-size: 11px;">NOW</button>
         </div>
         <button type="button" class="btn btn-del" id="delBtn" style="display:none;">DEL</button>
       </div>
@@ -343,7 +366,7 @@
           <canvas id="graphCanvas"></canvas>
         </div>
       </div>
-      <div class="graph-hint">&lt;&lt; SLIDE TO VIEW PAST LOGS / TAP POINT TO EDIT</div>
+      <div class="graph-hint">&lt;&lt; SLIDE / PINCH TO ZOOM / TAP POINT TO EDIT</div>
     </div>
 
     <!-- 4. REPORT ウィンドウ -->
@@ -475,13 +498,24 @@
     let selectedDateTimeStr = formatDateTime(new Date());
     let chartPoints = [];
 
+    // ズーム状態管理（デフォルト: 1画面あたり60ログ表示）
+    const DEFAULT_VISIBLE_COUNT = 60;
+    const MIN_VISIBLE_COUNT = 10;
+    let visibleLogCount = DEFAULT_VISIBLE_COUNT;
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartVisibleCount = DEFAULT_VISIBLE_COUNT;
+
     // DOM Elements
     const weightInput = document.getElementById('weightInput');
     const dateTimeInput = document.getElementById('dateTimeInput');
+    const nativePicker = document.getElementById('nativePicker');
+    const calendarIcon = document.getElementById('calendarIcon');
     const weightForm = document.getElementById('weightForm');
     const inputCard = document.getElementById('inputCard');
     const delBtn = document.getElementById('delBtn');
     const saveBtn = document.getElementById('saveBtn');
+    const nowBtn = document.getElementById('nowBtn');
     const comboText = document.getElementById('comboText');
 
     // Graph DOM
@@ -528,6 +562,7 @@
       return `${y}-${m}-${d} ${hh}:${mm}`;
     }
 
+    // "YYYY-MM-DD HH:MM" から Date オブジェクトへ変換
     function parseDateTime(str) {
       if (!str) return null;
       const cleaned = str.trim().replace(/\//g, '-');
@@ -560,9 +595,22 @@
       setupEvents();
       selectedDateTimeStr = formatDateTime(new Date());
       dateTimeInput.value = selectedDateTimeStr;
+      updateNativePickerValue(selectedDateTimeStr);
       loadRecordToController();
       render(true);
       registerServiceWorker();
+    }
+
+    function updateNativePickerValue(str) {
+      const parsed = parseDateTime(str);
+      if (parsed) {
+        const y = parsed.getFullYear();
+        const m = String(parsed.getMonth() + 1).padStart(2, '0');
+        const d = String(parsed.getDate()).padStart(2, '0');
+        const hh = String(parsed.getHours()).padStart(2, '0');
+        const mm = String(parsed.getMinutes()).padStart(2, '0');
+        nativePicker.value = `${y}-${m}-${d}T${hh}:${mm}`;
+      }
     }
 
     function populateProfileDropdowns() {
@@ -671,6 +719,28 @@
       }
     }
 
+    // ズーム変更と中心位置の維持処理
+    function applyZoom(newVisibleCount, focalClientX) {
+      const sortedCount = records.filter(r => r.weight !== null && r.weight !== undefined).length;
+      const maxVisible = Math.max(DEFAULT_VISIBLE_COUNT, sortedCount);
+      const clampedCount = Math.max(MIN_VISIBLE_COUNT, Math.min(maxVisible, newVisibleCount));
+
+      if (Math.abs(clampedCount - visibleLogCount) < 0.05) return;
+
+      const rect = graphScrollContainer.getBoundingClientRect();
+      const focalOffsetX = focalClientX - rect.left;
+      const oldScrollWidth = graphCanvas.width || graphScrollContainer.clientWidth;
+      const oldScrollLeft = graphScrollContainer.scrollLeft;
+      const contentX = oldScrollLeft + focalOffsetX;
+      const ratio = oldScrollWidth > 0 ? contentX / oldScrollWidth : 1;
+
+      visibleLogCount = clampedCount;
+      renderLineGraph(false);
+
+      const newScrollWidth = graphCanvas.width || graphScrollContainer.clientWidth;
+      graphScrollContainer.scrollLeft = ratio * newScrollWidth - focalOffsetX;
+    }
+
     function setupEvents() {
       personalDataToggle.onclick = () => {
         const isOpen = personalDataBody.classList.toggle('open');
@@ -678,22 +748,49 @@
       };
 
       document.getElementById('refreshBtn').onclick = () => {
+        visibleLogCount = DEFAULT_VISIBLE_COUNT;
         selectedDateTimeStr = formatDateTime(new Date());
         dateTimeInput.value = selectedDateTimeStr;
+        updateNativePickerValue(selectedDateTimeStr);
         loadRecordToController();
         render(true);
       };
 
-      dateTimeInput.onchange = () => {
-        const parsed = parseDateTime(dateTimeInput.value);
-        if (parsed) {
-          selectedDateTimeStr = formatDateTime(parsed);
-          dateTimeInput.value = selectedDateTimeStr;
-          loadRecordToController();
-          renderInputSection();
+      // NOWボタンクリック時の即座な現在時刻同期
+      nowBtn.onclick = () => {
+        selectedDateTimeStr = formatDateTime(new Date());
+        dateTimeInput.value = selectedDateTimeStr;
+        updateNativePickerValue(selectedDateTimeStr);
+        loadRecordToController();
+        renderInputSection();
+      };
+
+      // カレンダーアイコンまたは入力欄のクリックでネイティブ日時ピッカーを起動
+      const triggerPicker = () => {
+        if (typeof nativePicker.showPicker === 'function') {
+          try {
+            nativePicker.showPicker();
+          } catch (err) {
+            nativePicker.click();
+          }
         } else {
-          alert('日時は YYYY-MM-DD HH:MM の形式で入力してください（例: 2026-11-12 00:00）');
-          dateTimeInput.value = selectedDateTimeStr;
+          nativePicker.click();
+        }
+      };
+
+      calendarIcon.onclick = triggerPicker;
+      dateTimeInput.onclick = triggerPicker;
+
+      // ネイティブピッカーで日時が選択されたときの処理
+      nativePicker.onchange = () => {
+        if (nativePicker.value) {
+          const d = new Date(nativePicker.value);
+          if (!isNaN(d.getTime())) {
+            selectedDateTimeStr = formatDateTime(d);
+            dateTimeInput.value = selectedDateTimeStr;
+            loadRecordToController();
+            renderInputSection();
+          }
         }
       };
 
@@ -703,7 +800,7 @@
 
         const targetDate = parseDateTime(dateTimeInput.value);
         if (!targetDate) {
-          alert('日時は YYYY-MM-DD HH:MM の形式で入力してください（例: 2026-11-12 00:00）');
+          alert('日時は YYYY-MM-DD HH:MM の形式で入力してください');
           return;
         }
         selectedDateTimeStr = formatDateTime(targetDate);
@@ -735,9 +832,52 @@
         render(true);
       };
 
+      // ピンチアウト・ピンチインでの拡大縮小（タッチデバイス）
+      graphScrollContainer.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          isPinching = true;
+          pinchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          pinchStartVisibleCount = visibleLogCount;
+        }
+      }, { passive: true });
+
+      graphScrollContainer.addEventListener('touchmove', (e) => {
+        if (isPinching && e.touches.length === 2) {
+          e.preventDefault();
+          const currentDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          if (pinchStartDist > 0 && currentDist > 0) {
+            const scale = currentDist / pinchStartDist;
+            const newVisible = pinchStartVisibleCount / scale;
+            const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            applyZoom(newVisible, centerX);
+          }
+        }
+      }, { passive: false });
+
+      graphScrollContainer.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+          isPinching = false;
+        }
+      }, { passive: true });
+
+      // PCでのCtrl+ホイール拡大縮小対応
+      graphScrollContainer.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          const zoomFactor = e.deltaY > 0 ? 1.15 : 0.87;
+          applyZoom(visibleLogCount * zoomFactor, e.clientX);
+        }
+      }, { passive: false });
+
       // グラフ上のポイントタップで該当データを編集読み込み
       graphCanvas.onclick = (e) => {
-        if (chartPoints.length === 0) return;
+        if (isPinching || chartPoints.length === 0) return;
         const rect = graphCanvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
@@ -755,6 +895,7 @@
         if (nearest && nearest.record) {
           selectedDateTimeStr = formatDateTime(nearest.record.date);
           dateTimeInput.value = selectedDateTimeStr;
+          updateNativePickerValue(selectedDateTimeStr);
           loadRecordToController();
           render(false);
         }
@@ -910,7 +1051,7 @@
       }
     }
 
-    // 折れ線グラフ描画（目標値のテキストなし・点線のみ描画）
+    // 折れ線グラフ描画（ピンチズーム対応・目標値点線描画）
     function renderLineGraph(scrollToLatest = false) {
       const sorted = records
         .filter(r => r.weight !== null && r.weight !== undefined)
@@ -942,15 +1083,15 @@
         return;
       }
 
-      // 1画面（viewportWidth）あたり直近60入力分が収まる固定ステップ幅を計算
-      const VISIBLE_COUNT = 60;
+      // 現在のズーム倍率（visibleLogCount）に応じたステップ幅を計算
       const padLeft = 14;
       const padRight = 18;
       const padTop = 22;
       const padBottom = 28;
       const plotHeight = height - padTop - padBottom;
 
-      const stepX = (viewportWidth - padLeft - padRight) / (VISIBLE_COUNT - 1);
+      const effectiveVisible = Math.max(2, visibleLogCount);
+      const stepX = (viewportWidth - padLeft - padRight) / (effectiveVisible - 1);
       const totalWidth = Math.max(viewportWidth, padLeft + padRight + Math.max(0, sorted.length - 1) * stepX);
 
       graphCanvas.width = totalWidth;
@@ -958,7 +1099,8 @@
       const ctx = graphCanvas.getContext('2d');
       ctx.clearRect(0, 0, totalWidth, height);
 
-      graphRangeText.innerText = `TOTAL ${sorted.length} LOGS (60/VIEW)`;
+      const displayCountLabel = Math.round(visibleLogCount);
+      graphRangeText.innerText = `TOTAL ${sorted.length} LOGS (${displayCountLabel}/VIEW)`;
 
       // 全データと目標体重を含めて縦軸スケールを決定
       const scaleValues = sorted.map(r => r.weight);
@@ -1029,16 +1171,18 @@
         chartPoints.push({ x, y, record: r });
       });
 
-      // X軸の日付目盛り（10ポイントごと、および最新）
+      // X軸の日付目盛り（ズーム倍率に応じてラベル間隔を自動調整）
       ctx.fillStyle = '#008833';
       ctx.font = '10px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
 
+      const tickInterval = Math.max(1, Math.round(visibleLogCount / 6));
+
       chartPoints.forEach((pt, idx) => {
         const isLast = idx === chartPoints.length - 1;
         const reverseIdx = chartPoints.length - 1 - idx;
-        if (isLast || reverseIdx % 10 === 0) {
+        if (isLast || reverseIdx % tickInterval === 0) {
           // 縦補助線
           ctx.strokeStyle = 'rgba(0, 85, 34, 0.35)';
           ctx.lineWidth = 1;
@@ -1089,7 +1233,7 @@
 
         ctx.beginPath();
         ctx.fillStyle = isSelected ? '#FFFFFF' : '#00FF66';
-        ctx.arc(pt.x, pt.y, isSelected ? 4.5 : (isLatest ? 3.5 : 2.2), 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, isSelected ? 4.5 : (isLatest ? 3.5 : 2.4), 0, Math.PI * 2);
         ctx.fill();
 
         if (isLatest || isSelected) {
