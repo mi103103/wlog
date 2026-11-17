@@ -35,7 +35,7 @@
       margin: 0 auto;
       padding: 12px 16px;
     }
-    /* ヘッダー */
+    /* ヘッダー（タイトルと更新ボタンのみ） */
     .header {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -63,13 +63,6 @@
     .refresh-btn:active {
       background: #00FF66;
       color: #000;
-    }
-    .combo-text {
-      font-size: 14px;
-      color: #00FF66;
-      font-weight: bold;
-      letter-spacing: 1.2px;
-      text-align: right;
     }
 
     /* ウィンドウ共通（上下の線のみ） */
@@ -101,8 +94,9 @@
     .card-row-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex: 1;
+      flex-wrap: wrap;
     }
     .input-label {
       color: #00FF66;
@@ -136,11 +130,12 @@
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
-      padding: 4px 28px 4px 8px;
+      padding: 4px 26px 4px 6px;
       border-radius: 2px;
       cursor: pointer;
+      width: 142px;
     }
     .suffix {
       color: #00CC55;
@@ -183,7 +178,7 @@
       color: #000;
     }
 
-    /* グラフウィンドウ（高さ1.5倍：220px -> 330px） */
+    /* グラフウィンドウ（高さ286px） */
     .graph-card {
       background: #070A07;
       border-top: 1px solid #005522;
@@ -212,7 +207,7 @@
     .graph-wrapper {
       display: flex;
       position: relative;
-      height: 330px;
+      height: 286px;
       border-top: 1px solid #003311;
       border-bottom: 1px solid #003311;
       border-left: none;
@@ -260,6 +255,25 @@
       font-size: 11px;
       color: #008833;
       text-align: right;
+    }
+
+    /* MEMOウィンドウ用スタイル */
+    .memo-textarea {
+      width: 100%;
+      height: 75px;
+      background: #070A07;
+      border: 1px solid #005522;
+      outline: none;
+      color: #00FF66;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 8px;
+      border-radius: 2px;
+      resize: vertical;
+      margin-top: 6px;
+    }
+    .memo-textarea::placeholder {
+      color: #006622;
     }
 
     /* REPORT ウィンドウ用スタイル */
@@ -322,7 +336,7 @@
     <div class="header">
       <div class="header-title">WLOG</div>
       <button class="refresh-btn" id="refreshBtn">↻</button>
-      <div class="combo-text" id="comboText">0 DAYS COMBO!</div>
+      <div></div>
     </div>
 
     <!-- 2. INPUT ウィンドウ -->
@@ -331,7 +345,7 @@
         <div class="card-row-left">
           <span class="input-label">DATE:</span>
           <div style="position: relative; display: inline-flex; align-items: center;">
-            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-17 08:57" style="width: 155px;">
+            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-18 08:57">
             <span id="calendarIcon" style="position: absolute; right: 6px; color: #00FF66; font-size: 13px; cursor: pointer;">📅</span>
             <!-- 裏で確実に動くネイティブ日時ピッカー -->
             <input type="datetime-local" id="nativePicker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
@@ -369,12 +383,24 @@
       <div class="graph-hint">&lt;&lt; SLIDE / PINCH TO ZOOM / TAP POINT TO EDIT</div>
     </div>
 
-    <!-- 4. REPORT ウィンドウ -->
+    <!-- 4. MEMO ウィンドウ -->
     <div class="card">
-      <div style="margin-bottom: 6px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="input-label" style="font-size: 14px;">MEMO:</span>
+      </div>
+      <textarea class="memo-textarea" id="memoTextarea" placeholder="目標やTo Doを自由に記入（自動保存されます）"></textarea>
+    </div>
+
+    <!-- 5. REPORT ウィンドウ -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
         <span class="input-label" style="font-size: 14px;">REPORT:</span>
       </div>
       <div class="report-list">
+        <div class="report-item">
+          <div class="report-item-title">TIPS & KNOWLEDGE</div>
+          <div class="report-item-value report-comment" id="repComment">データを記録するとダイエットに役立つアドバイスが表示されます。</div>
+        </div>
         <div class="report-item">
           <div class="report-item-title">BMI</div>
           <div class="report-item-value" id="repBmi">--.- [--]</div>
@@ -384,16 +410,16 @@
           <div class="report-item-value" id="repBmr">-- kcal</div>
         </div>
         <div class="report-item">
+          <div class="report-item-title">ESTIMATED ENERGY REQUIREMENT</div>
+          <div class="report-item-value" id="repEnergyRequirement">-- kcal</div>
+        </div>
+        <div class="report-item">
           <div class="report-item-title">WEEKLY CHANGE</div>
           <div class="report-item-value" id="repWeeklyChange">-- kg</div>
         </div>
         <div class="report-item">
           <div class="report-item-title">MONTHLY CHANGE</div>
           <div class="report-item-value" id="repMonthlyChange">-- kg</div>
-        </div>
-        <div class="report-item">
-          <div class="report-item-title">BODY TYPE</div>
-          <div class="report-item-value" id="repBodyType">--</div>
         </div>
         <div class="report-item">
           <div class="report-item-title">LOWEST WEIGHT</div>
@@ -407,18 +433,10 @@
           <div class="report-item-title">WEIGHT TO GOAL</div>
           <div class="report-item-value" id="repWeightToGoal">-- kg</div>
         </div>
-        <div class="report-item">
-          <div class="report-item-title">BFP TO GOAL</div>
-          <div class="report-item-value" id="repFatToGoal">-- %</div>
-        </div>
-        <div class="report-item">
-          <div class="report-item-title">TIPS</div>
-          <div class="report-item-value report-comment" id="repComment">データを記録するとダイエットに役立つアドバイスが表示されます。</div>
-        </div>
       </div>
     </div>
 
-    <!-- 5. PERSONAL DATA ウィンドウ（トグル式） -->
+    <!-- 6. PERSONAL DATA ウィンドウ（トグル式） -->
     <div class="card">
       <div class="collapse-header" id="personalDataToggle">
         <span class="input-label" style="font-size: 14px;">PERSONAL DATA <span id="toggleIndicator" style="font-size: 12px; color: #00CC55;">[+]</span></span>
@@ -454,19 +472,22 @@
             <span class="suffix">KG</span>
           </div>
         </div>
-        <!-- TARGET BFP -->
+        <!-- ACTIVITY LEVEL -->
         <div class="card-row">
-          <span class="input-label" style="width: 120px;">TARGET BFP:</span>
-          <div class="input-box">
-            <input type="number" step="0.1" class="term-input" id="targetFatInput" placeholder="00.0" inputmode="decimal">
-            <span class="suffix">%</span>
-          </div>
+          <span class="input-label" style="width: 120px;">ACTIVITY:</span>
+          <select class="term-select" id="activitySelect">
+            <option value="1.5">低い (I) : 1.5</option>
+            <option value="1.75" selected>普通 (II) : 1.75</option>
+            <option value="2.0">高い (III) : 2.0</option>
+          </select>
+        </div>
+        <div style="text-align: right;">
           <button class="btn btn-set" id="setProfileBtn">SET</button>
         </div>
       </div>
     </div>
 
-    <!-- 6. BACKUP / DATA ウィンドウ -->
+    <!-- 7. BACKUP / DATA ウィンドウ -->
     <div class="card">
       <div style="margin-bottom: 8px;">
         <span class="input-label" style="font-size: 14px;">DATA MANAGEMENT:</span>
@@ -483,6 +504,7 @@
     // Storage Keys
     const STORAGE_KEY = 'weight_records_storage';
     const PROFILE_STORAGE_KEY = 'user_profile_storage';
+    const MEMO_STORAGE_KEY = 'user_memo_storage';
 
     // State Variables
     let records = [];
@@ -492,7 +514,7 @@
       birthMonth: 1,
       height: null,
       targetWeight: null,
-      targetFat: null
+      activityLevel: 1.75
     };
 
     let selectedDateTimeStr = formatDateTime(new Date());
@@ -516,7 +538,7 @@
     const delBtn = document.getElementById('delBtn');
     const saveBtn = document.getElementById('saveBtn');
     const nowBtn = document.getElementById('nowBtn');
-    const comboText = document.getElementById('comboText');
+    const memoTextarea = document.getElementById('memoTextarea');
 
     // Graph DOM
     const graphScrollContainer = document.getElementById('graphScrollContainer');
@@ -530,7 +552,7 @@
     const birthMonthSelect = document.getElementById('birthMonthSelect');
     const heightInput = document.getElementById('heightInput');
     const targetWeightInput = document.getElementById('targetWeightInput');
-    const targetFatInput = document.getElementById('targetFatInput');
+    const activitySelect = document.getElementById('activitySelect');
     const setProfileBtn = document.getElementById('setProfileBtn');
     const personalDataToggle = document.getElementById('personalDataToggle');
     const personalDataBody = document.getElementById('personalDataBody');
@@ -539,13 +561,12 @@
     // Report DOM Elements
     const repBmi = document.getElementById('repBmi');
     const repBmr = document.getElementById('repBmr');
+    const repEnergyRequirement = document.getElementById('repEnergyRequirement');
     const repWeeklyChange = document.getElementById('repWeeklyChange');
     const repMonthlyChange = document.getElementById('repMonthlyChange');
-    const repBodyType = document.getElementById('repBodyType');
     const repLowestWeight = document.getElementById('repLowestWeight');
     const repHighestWeight = document.getElementById('repHighestWeight');
     const repWeightToGoal = document.getElementById('repWeightToGoal');
-    const repFatToGoal = document.getElementById('repFatToGoal');
     const repComment = document.getElementById('repComment');
 
     const exportBtn = document.getElementById('exportBtn');
@@ -654,7 +675,12 @@
       birthMonthSelect.value = userProfile.birthMonth || 1;
       heightInput.value = (userProfile.height !== null && !isNaN(userProfile.height)) ? parseFloat(userProfile.height).toFixed(1) : '';
       targetWeightInput.value = (userProfile.targetWeight !== null && !isNaN(userProfile.targetWeight)) ? parseFloat(userProfile.targetWeight).toFixed(1) : '';
-      targetFatInput.value = (userProfile.targetFat !== null && !isNaN(userProfile.targetFat)) ? parseFloat(userProfile.targetFat).toFixed(1) : '';
+      activitySelect.value = userProfile.activityLevel !== undefined ? userProfile.activityLevel : 1.75;
+
+      const savedMemo = localStorage.getItem(MEMO_STORAGE_KEY);
+      if (savedMemo !== null) {
+        memoTextarea.value = savedMemo;
+      }
 
       const savedRecords = localStorage.getItem(STORAGE_KEY);
       if (savedRecords !== null) {
@@ -692,7 +718,7 @@
     function saveProfile() {
       const hVal = parseFloat(heightInput.value);
       const twVal = parseFloat(targetWeightInput.value);
-      const tfVal = parseFloat(targetFatInput.value);
+      const actVal = parseFloat(activitySelect.value);
 
       userProfile = {
         gender: genderSelect.value,
@@ -700,11 +726,22 @@
         birthMonth: parseInt(birthMonthSelect.value, 10),
         height: !isNaN(hVal) ? hVal : null,
         targetWeight: !isNaN(twVal) ? twVal : null,
-        targetFat: !isNaN(tfVal) ? tfVal : null
+        activityLevel: !isNaN(actVal) ? actVal : 1.75
       };
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
-      renderLineGraph(false);
+      renderLineGraph(false, true);
       renderReport();
+    }
+
+    function autoCorrectInput() {
+      const rawW = weightInput.value.trim();
+      if (rawW) {
+        let valW = parseFloat(rawW);
+        if (!isNaN(valW)) {
+          if (!rawW.includes('.') && valW >= 300) valW = valW / 10;
+          weightInput.value = valW.toFixed(1);
+        }
+      }
     }
 
     function applyZoom(newVisibleCount, focalClientX) {
@@ -722,7 +759,7 @@
       const ratio = oldScrollWidth > 0 ? contentX / oldScrollWidth : 1;
 
       visibleLogCount = clampedCount;
-      renderLineGraph(false);
+      renderLineGraph(false, true);
 
       const newScrollWidth = graphCanvas.width || graphScrollContainer.clientWidth;
       graphScrollContainer.scrollLeft = ratio * newScrollWidth - focalOffsetX;
@@ -732,6 +769,10 @@
       personalDataToggle.onclick = () => {
         const isOpen = personalDataBody.classList.toggle('open');
         toggleIndicator.innerText = isOpen ? '[-]' : '[+]';
+      };
+
+      memoTextarea.oninput = () => {
+        localStorage.setItem(MEMO_STORAGE_KEY, memoTextarea.value);
       };
 
       document.getElementById('refreshBtn').onclick = () => {
@@ -780,6 +821,7 @@
 
       weightForm.onsubmit = (e) => {
         e.preventDefault();
+        autoCorrectInput();
 
         const targetDate = parseDateTime(dateTimeInput.value);
         if (!targetDate) {
@@ -877,7 +919,8 @@
           dateTimeInput.value = selectedDateTimeStr;
           updateNativePickerValue(selectedDateTimeStr);
           loadRecordToController();
-          render(false);
+          renderInputSection();
+          renderLineGraph(false, true);
         }
       };
 
@@ -891,7 +934,7 @@
       birthMonthSelect.onchange = saveProfile;
       heightInput.oninput = saveProfile;
       targetWeightInput.oninput = saveProfile;
-      targetFatInput.oninput = saveProfile;
+      activitySelect.onchange = saveProfile;
 
       exportBtn.onclick = exportData;
       importBtn.onclick = () => importFileInput.click();
@@ -901,6 +944,7 @@
     function exportData() {
       const backupData = {
         profile: userProfile,
+        memo: localStorage.getItem(MEMO_STORAGE_KEY) || '',
         records: records.map(r => ({
           date: r.date.toISOString(),
           weight: r.weight,
@@ -942,7 +986,12 @@
             birthMonthSelect.value = userProfile.birthMonth || 1;
             heightInput.value = userProfile.height ? userProfile.height.toFixed(1) : '';
             targetWeightInput.value = userProfile.targetWeight ? userProfile.targetWeight.toFixed(1) : '';
-            targetFatInput.value = userProfile.targetFat ? userProfile.targetFat.toFixed(1) : '';
+            activitySelect.value = userProfile.activityLevel !== undefined ? userProfile.activityLevel : 1.75;
+          }
+
+          if (parsed.memo !== undefined) {
+            localStorage.setItem(MEMO_STORAGE_KEY, parsed.memo);
+            memoTextarea.value = parsed.memo;
           }
 
           if (Array.isArray(parsed.records)) {
@@ -1011,9 +1060,8 @@
     }
 
     function render(scrollToLatest = false) {
-      comboText.innerText = `${calculateStreak()} DAYS COMBO!`;
       renderInputSection();
-      renderLineGraph(scrollToLatest);
+      renderLineGraph(scrollToLatest, scrollToLatest);
       renderReport();
     }
 
@@ -1031,13 +1079,15 @@
       }
     }
 
-    function renderLineGraph(scrollToLatest = false) {
+    function renderLineGraph(scrollToLatest = false, keepScroll = false) {
+      const currentScrollLeft = graphScrollContainer.scrollLeft;
+
       const sorted = records
         .filter(r => r.weight !== null && r.weight !== undefined)
         .sort((a, b) => a.date - b.date);
 
       const viewportWidth = graphScrollContainer.clientWidth || 300;
-      const height = graphScrollContainer.clientHeight || 330;
+      const height = graphScrollContainer.clientHeight || 286;
 
       const yAxisWidth = yAxisCanvas.parentElement.clientWidth || 36;
       yAxisCanvas.width = yAxisWidth;
@@ -1200,47 +1250,13 @@
         ctx.fillStyle = isSelected ? '#FFFFFF' : '#00FF66';
         ctx.arc(pt.x, pt.y, isSelected ? 4.5 : (isLatest ? 3.5 : 2.4), 0, Math.PI * 2);
         ctx.fill();
-
-        if (isLatest || isSelected) {
-          ctx.fillStyle = '#00FF66';
-          ctx.font = 'bold 10px monospace';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(pt.record.weight.toFixed(1), pt.x, pt.y - 6);
-        }
       });
 
       if (scrollToLatest) {
         graphScrollContainer.scrollLeft = totalWidth;
+      } else if (keepScroll) {
+        graphScrollContainer.scrollLeft = currentScrollLeft;
       }
-    }
-
-    function getBodyType(weight, bodyFat, height) {
-      if (!weight) return 'NO DATA';
-      let bmi = null;
-      if (height && height > 0) {
-        const hM = height / 100.0;
-        bmi = weight / (hM * hM);
-      }
-
-      if (bodyFat === null || bodyFat === undefined) {
-        return 'NEED BFP DATA';
-      }
-
-      if (bodyFat >= 35 || (bmi !== null && bmi >= 25.0 && bodyFat >= 30)) {
-        return 'OBESE';
-      }
-      if (bmi !== null && bmi < 25.0 && bodyFat >= 30) {
-        return 'HIDDEN OBESE';
-      }
-      if (bmi !== null && bmi >= 18.5 && bmi < 25.0 && bodyFat >= 20 && bodyFat < 30) {
-        return 'HEALTHY';
-      }
-      if (bmi !== null && bmi >= 25.0 && bodyFat < 30) {
-        return 'MUSCULAR';
-      }
-
-      return 'UNDERWEIGHT';
     }
 
     function formatDateShort(dateObj) {
@@ -1250,26 +1266,46 @@
       return `${y}/${m}/${d}`;
     }
 
+    function getRandomTip(weightRecs, streak) {
+      if (weightRecs.length === 0) {
+        return 'データを記録するとダイエットに役立つアドバイスや基礎知識が表示されます。';
+      }
+
+      const tipsPool = [
+        '【TREND】体重の短期的な増減は主に水分量やグリコーゲンの変動です。日々の数値に一喜一憂せず、長期トレンドを追跡しましょう。',
+        '【TREND】昨日より微増していても、脂肪が増えたわけではありません。焦らず水分と塩分のコントロールを。',
+        '【ADVICE】体脂肪を1kg減らすには約7,200kcalのアンダーカロリー（消費＞摂取）が必要です。極端な食事制限は筋肉の分解を招くため禁物です。',
+        '【ADVICE】タンパク質は筋肉の維持・合成に不可欠であり、食事誘発性熱産生（DIT）も高いため太りにくい栄養素です。',
+        `【COMBO】現在 ${streak} 日連続記録中！記録をつける行為そのものが、無意識の食べすぎや生活の乱れを防ぐ最大の防御壁になります。`,
+        '【HABIT】睡眠不足は食欲増進ホルモン（グレリン）を増やし、満腹ホルモン（レプチン）を減らします。まずは良質な睡眠を確保しましょう。',
+        '【HABIT】こまめな水分補給は血流を促し、代謝の維持やむくみの予防・解消に直結します。',
+        '【KNOWLEDGE】脂質はホルモンバランスや細胞膜の構成に必須の栄養素です。極端にカットせず、良質な脂質（青魚・ナッツ・オリーブオイル等）を選びましょう。',
+        '【KNOWLEDGE】体重60kgの方が約1時間ウォーキング（時速4km）した場合のおおよその消費カロリーは約180〜200kcalです。',
+        '【KNOWLEDGE】炭水化物（糖質）は脳や筋肉の最優先エネルギー源です。完全に断つと集中力低下や代謝低下を招くため、適量を賢く摂りましょう。'
+      ];
+
+      const randomIndex = Math.floor(Math.random() * tipsPool.length);
+      return tipsPool[randomIndex];
+    }
+
     function renderReport() {
       const weightRecs = records.filter(r => r.weight !== null && r.weight !== undefined).sort((a,b) => a.date - b.date);
-      const fatRecs = records.filter(r => r.bodyFat !== null && r.bodyFat !== undefined).sort((a,b) => a.date - b.date);
+      const streak = calculateStreak();
 
       if (weightRecs.length === 0) {
         repBmi.innerText = '--.- [--]';
         repBmr.innerText = '-- kcal';
+        repEnergyRequirement.innerText = '-- kcal';
         repWeeklyChange.innerText = '-- kg';
         repMonthlyChange.innerText = '-- kg';
-        repBodyType.innerText = '--';
         repLowestWeight.innerText = '-- kg (--/--/--)';
         repHighestWeight.innerText = '-- kg (--/--/--)';
         repWeightToGoal.innerText = '-- kg';
-        repFatToGoal.innerText = '-- %';
-        repComment.innerText = 'データを記録するとダイエットに役立つアドバイスが表示されます。';
+        repComment.innerText = getRandomTip(weightRecs, streak);
         return;
       }
 
       let latestWeight = weightRecs[weightRecs.length - 1].weight;
-      let latestFat = fatRecs.length > 0 ? fatRecs[fatRecs.length - 1].bodyFat : null;
 
       if (userProfile.height && userProfile.height > 0) {
         const hM = userProfile.height / 100.0;
@@ -1311,8 +1347,13 @@
           bmr = 9.247 * latestWeight + 3.098 * userProfile.height - 4.330 * age + 447.593;
         }
         repBmr.innerText = `${Math.round(bmr)} kcal`;
+
+        const actLevel = userProfile.activityLevel !== undefined ? userProfile.activityLevel : 1.75;
+        const energyReq = bmr * actLevel;
+        repEnergyRequirement.innerText = `${Math.round(energyReq)} kcal`;
       } else {
         repBmr.innerText = '-- kcal';
+        repEnergyRequirement.innerText = '-- kcal';
       }
 
       let lowest = weightRecs[0];
@@ -1332,25 +1373,11 @@
         repWeightToGoal.innerText = 'SET TARGET W';
       }
 
-      if (userProfile.targetFat !== null && !isNaN(userProfile.targetFat) && latestFat !== null) {
-        const diffTf = latestFat - userProfile.targetFat;
-        repFatToGoal.innerText = (diffTf > 0 ? '+' : '') + diffTf.toFixed(1) + ' %';
-      } else {
-        repFatToGoal.innerText = 'SET TARGET BFP';
-      }
-
-      const latestType = getBodyType(latestWeight, latestFat, userProfile.height);
-      if (latestFat === null || latestFat === undefined) {
-        repBodyType.innerText = 'NEED BFP DATA';
-        repComment.innerText = `現在の最新体重は ${latestWeight.toFixed(1)} kg（過去最低: ${lowest.weight.toFixed(1)} kg）です。継続的な記録で変化を把握しましょう。`;
-      } else {
-        repBodyType.innerText = latestType;
-        repComment.innerText = `現在の体型タイプは [${latestType}] です。基礎代謝量を意識しつつ、目標達成に向けて継続的な記録を続けましょう。`;
-      }
+      repComment.innerText = getRandomTip(weightRecs, streak);
     }
 
     window.addEventListener('resize', () => {
-      renderLineGraph(false);
+      renderLineGraph(false, true);
     });
 
     window.onload = init;
