@@ -29,6 +29,7 @@
       color: #00FF66;
       font-family: monospace;
       overflow-x: hidden;
+      font-size: var(--base-font-size, 16px);
     }
     .container {
       max-width: 600px;
@@ -46,7 +47,7 @@
       padding: 6px 0;
     }
     .header-title {
-      font-size: 15px;
+      font-size: 1.0rem;
       font-weight: bold;
       letter-spacing: 1.2px;
     }
@@ -57,7 +58,7 @@
       border-radius: 2px;
       padding: 4px 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 0.9rem;
       justify-self: center;
     }
     .refresh-btn:active {
@@ -84,23 +85,29 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-bottom: 8px;
     }
-    .card-row-header {
+    .card-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* INPUTウィンドウ専用2行レイアウト用スタイル */
+    .date-row-1 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .date-row-2 {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 8px;
       margin-bottom: 10px;
     }
-    .card-row-left {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-      flex-wrap: wrap;
-    }
+
     .input-label {
       color: #00FF66;
-      font-size: 14px;
+      font-size: 0.9rem;
       font-weight: bold;
     }
     .input-box {
@@ -115,7 +122,7 @@
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 16px;
+      font-size: 1.0rem;
       font-weight: bold;
       padding: 4px 8px;
       border-radius: 2px;
@@ -130,23 +137,23 @@
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 12px;
+      font-size: 0.95rem;
       font-weight: bold;
-      padding: 4px 26px 4px 6px;
+      padding: 6px 32px 6px 10px;
       border-radius: 2px;
       cursor: pointer;
-      width: 142px;
+      width: 100%;
     }
     .suffix {
       color: #00CC55;
-      font-size: 14px;
+      font-size: 0.9rem;
       font-weight: bold;
       margin-left: 4px;
     }
     .btn {
       font-family: monospace;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 0.85rem;
       padding: 8px 12px;
       border-radius: 2px;
       border: none;
@@ -164,14 +171,13 @@
       background: #330000;
       color: #FF4444;
       border: 1px solid #FF4444;
-      padding: 4px 8px;
-      font-size: 12px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
     }
     .btn-sub {
       background: #070A07;
       border: 1px solid #00AA44;
       color: #00FF66;
-      flex: 1;
     }
     .btn-sub:active {
       background: #00AA44;
@@ -198,11 +204,11 @@
     .graph-title {
       color: #00FF66;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 0.9rem;
     }
     .graph-info {
       color: #00CC55;
-      font-size: 11px;
+      font-size: 0.75rem;
     }
     .graph-wrapper {
       display: flex;
@@ -252,7 +258,7 @@
     }
     .graph-hint {
       margin-top: 6px;
-      font-size: 11px;
+      font-size: 0.75rem;
       color: #008833;
       text-align: right;
     }
@@ -266,7 +272,7 @@
       outline: none;
       color: #00FF66;
       font-family: monospace;
-      font-size: 13px;
+      font-size: 0.85rem;
       padding: 8px;
       border-radius: 2px;
       resize: vertical;
@@ -293,23 +299,23 @@
       border-radius: 0;
     }
     .report-item-title {
-      font-size: 11px;
+      font-size: 0.75rem;
       color: #00CC55;
       margin-bottom: 4px;
     }
     .report-item-value {
-      font-size: 14px;
+      font-size: 0.9rem;
       font-weight: bold;
       color: #00FF66;
     }
     .report-comment {
-      font-size: 12px;
+      font-size: 0.8rem;
       color: #00CC55;
       line-height: 1.4;
       font-weight: normal;
     }
 
-    /* PERSONAL DATA トグル用スタイル */
+    /* トグル共通スタイル */
     .collapse-header {
       display: flex;
       justify-content: space-between;
@@ -341,24 +347,26 @@
 
     <!-- 2. INPUT ウィンドウ -->
     <div class="card" id="inputCard">
-      <div class="card-row-header">
-        <div class="card-row-left">
-          <span class="input-label">DATE:</span>
-          <div style="position: relative; display: inline-flex; align-items: center;">
-            <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-18 08:57">
-            <span id="calendarIcon" style="position: absolute; right: 6px; color: #00FF66; font-size: 13px; cursor: pointer;">📅</span>
-            <!-- 裏で確実に動くネイティブ日時ピッカー -->
-            <input type="datetime-local" id="nativePicker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
-          </div>
-          <button type="button" class="btn btn-sub" id="nowBtn" style="padding: 4px 8px; font-size: 11px;">NOW</button>
-        </div>
+      <!-- 1行目: [NOW] [DEL] -->
+      <div class="date-row-1">
+        <button type="button" class="btn btn-sub" id="nowBtn" style="padding: 6px 14px; font-size: 0.8rem;">NOW</button>
         <button type="button" class="btn btn-del" id="delBtn" style="display:none;">DEL</button>
+      </div>
+      <!-- 2行目: DATEラベルと日時入力フィールド -->
+      <div class="date-row-2">
+        <span class="input-label">DATE:</span>
+        <div style="position: relative; display: flex; align-items: center; flex: 1;">
+          <input type="text" class="date-time-input" id="dateTimeInput" readonly placeholder="2026-11-19 08:23">
+          <span id="calendarIcon" style="position: absolute; right: 10px; color: #00FF66; font-size: 1.0rem; cursor: pointer;">📅</span>
+          <!-- 裏で確実に動くネイティブ日時ピッカー -->
+          <input type="datetime-local" id="nativePicker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+        </div>
       </div>
       <form id="weightForm" action="javascript:void(0);">
         <div class="card-row">
           <span class="input-label" style="width: 85px;">WEIGHT:</span>
           <div class="input-box">
-            <input type="number" step="0.1" class="term-input" id="weightInput" placeholder="00.0" inputmode="decimal" style="font-size:22px; background:transparent; border:none;">
+            <input type="number" step="0.1" class="term-input" id="weightInput" placeholder="00.0" inputmode="decimal" style="font-size:1.4rem; background:transparent; border:none;">
             <span class="suffix">KG</span>
           </div>
           <button type="submit" class="btn btn-main" id="saveBtn">RECORD</button>
@@ -386,7 +394,7 @@
     <!-- 4. MEMO ウィンドウ -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span class="input-label" style="font-size: 14px;">MEMO:</span>
+        <span class="input-label" style="font-size: 0.9rem;">MEMO:</span>
       </div>
       <textarea class="memo-textarea" id="memoTextarea" placeholder="目標やTo Doを自由に記入（自動保存されます）"></textarea>
     </div>
@@ -394,7 +402,7 @@
     <!-- 5. REPORT ウィンドウ -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        <span class="input-label" style="font-size: 14px;">REPORT:</span>
+        <span class="input-label" style="font-size: 0.9rem;">REPORT:</span>
       </div>
       <div class="report-list">
         <div class="report-item">
@@ -439,7 +447,7 @@
     <!-- 6. PERSONAL DATA ウィンドウ（トグル式） -->
     <div class="card">
       <div class="collapse-header" id="personalDataToggle">
-        <span class="input-label" style="font-size: 14px;">PERSONAL DATA <span id="toggleIndicator" style="font-size: 12px; color: #00CC55;">[+]</span></span>
+        <span class="input-label" style="font-size: 0.9rem;">PERSONAL DATA <span id="toggleIndicator" style="font-size: 0.8rem; color: #00CC55;">[+]</span></span>
       </div>
       <div class="collapse-body" id="personalDataBody">
         <!-- GENDER -->
@@ -487,15 +495,45 @@
       </div>
     </div>
 
-    <!-- 7. BACKUP / DATA ウィンドウ -->
+    <!-- 7. SETTING ウィンドウ（トグル式） -->
     <div class="card">
-      <div style="margin-bottom: 8px;">
-        <span class="input-label" style="font-size: 14px;">DATA MANAGEMENT:</span>
+      <div class="collapse-header" id="settingToggle">
+        <span class="input-label" style="font-size: 0.9rem;">SETTING <span id="settingToggleIndicator" style="font-size: 0.8rem; color: #00CC55;">[+]</span></span>
       </div>
-      <div class="card-row">
-        <button class="btn btn-sub" id="exportBtn">EXPORT JSON</button>
-        <button class="btn btn-sub" id="importBtn">IMPORT JSON</button>
-        <input type="file" id="importFileInput" accept=".json" style="display: none;">
+      <div class="collapse-body" id="settingBody">
+        <!-- FONT SIZE -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">FONT SIZE:</span>
+          <select class="term-select" id="fontSizeSelect">
+            <option value="small">small</option>
+            <option value="middle">middle</option>
+            <option value="large">large</option>
+          </select>
+        </div>
+        <!-- DEFAULT VIEW LOGS -->
+        <div class="card-row">
+          <span class="input-label" style="width: 120px;">VIEW LOGS:</span>
+          <select class="term-select" id="defaultLogsSelect">
+            <option value="30">30 / VIEW</option>
+            <option value="60" selected>60 / VIEW</option>
+            <option value="90">90 / VIEW</option>
+            <option value="120">120 / VIEW</option>
+          </select>
+        </div>
+        <div style="text-align: right; margin-bottom: 8px;">
+          <button class="btn btn-set" id="setSettingBtn">SET</button>
+        </div>
+        <!-- DATA MANAGEMENT (EXPORT / IMPORT) -->
+        <div style="border-top: 1px dashed #005522; padding-top: 8px; margin-top: 4px;">
+          <div style="margin-bottom: 6px;">
+            <span class="input-label" style="font-size: 0.85rem; color: #00CC55;">DATA MANAGEMENT:</span>
+          </div>
+          <div class="card-row">
+            <button class="btn btn-sub" id="exportBtn">EXPORT JSON</button>
+            <button class="btn btn-sub" id="importBtn">IMPORT JSON</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -505,6 +543,7 @@
     const STORAGE_KEY = 'weight_records_storage';
     const PROFILE_STORAGE_KEY = 'user_profile_storage';
     const MEMO_STORAGE_KEY = 'user_memo_storage';
+    const SETTING_STORAGE_KEY = 'user_setting_storage';
 
     // State Variables
     let records = [];
@@ -517,16 +556,19 @@
       activityLevel: 1.75
     };
 
+    let userSettings = {
+      fontSize: 'small',
+      defaultLogs: 60
+    };
+
     let selectedDateTimeStr = formatDateTime(new Date());
     let chartPoints = [];
 
-    // ズーム状態管理（デフォルト: 1画面あたり60ログ表示）
-    const DEFAULT_VISIBLE_COUNT = 60;
-    const MIN_VISIBLE_COUNT = 10;
-    let visibleLogCount = DEFAULT_VISIBLE_COUNT;
+    // ズーム状態管理
+    let visibleLogCount = 60;
     let isPinching = false;
     let pinchStartDist = 0;
-    let pinchStartVisibleCount = DEFAULT_VISIBLE_COUNT;
+    let pinchStartVisibleCount = 60;
 
     // DOM Elements
     const weightInput = document.getElementById('weightInput');
@@ -557,6 +599,14 @@
     const personalDataToggle = document.getElementById('personalDataToggle');
     const personalDataBody = document.getElementById('personalDataBody');
     const toggleIndicator = document.getElementById('toggleIndicator');
+
+    // Setting DOM
+    const settingToggle = document.getElementById('settingToggle');
+    const settingBody = document.getElementById('settingBody');
+    const settingToggleIndicator = document.getElementById('settingToggleIndicator');
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
+    const defaultLogsSelect = document.getElementById('defaultLogsSelect');
+    const setSettingBtn = document.getElementById('setSettingBtn');
 
     // Report DOM Elements
     const repBmi = document.getElementById('repBmi');
@@ -662,6 +712,16 @@
       }
     }
 
+    function applyFontSize(size) {
+      if (size === 'large') {
+        document.documentElement.style.setProperty('--base-font-size', '17.5px');
+      } else if (size === 'middle') {
+        document.documentElement.style.setProperty('--base-font-size', '16.5px');
+      } else {
+        document.documentElement.style.setProperty('--base-font-size', '15px');
+      }
+    }
+
     function loadData() {
       const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
       if (savedProfile) {
@@ -676,6 +736,18 @@
       heightInput.value = (userProfile.height !== null && !isNaN(userProfile.height)) ? parseFloat(userProfile.height).toFixed(1) : '';
       targetWeightInput.value = (userProfile.targetWeight !== null && !isNaN(userProfile.targetWeight)) ? parseFloat(userProfile.targetWeight).toFixed(1) : '';
       activitySelect.value = userProfile.activityLevel !== undefined ? userProfile.activityLevel : 1.75;
+
+      const savedSetting = localStorage.getItem(SETTING_STORAGE_KEY);
+      if (savedSetting) {
+        try {
+          userSettings = { ...userSettings, ...JSON.parse(savedSetting) };
+        } catch(e) {}
+      }
+
+      fontSizeSelect.value = userSettings.fontSize || 'small';
+      defaultLogsSelect.value = userSettings.defaultLogs || 60;
+      visibleLogCount = parseInt(userSettings.defaultLogs, 10) || 60;
+      applyFontSize(userSettings.fontSize);
 
       const savedMemo = localStorage.getItem(MEMO_STORAGE_KEY);
       if (savedMemo !== null) {
@@ -733,6 +805,17 @@
       renderReport();
     }
 
+    function saveSettings() {
+      userSettings = {
+        fontSize: fontSizeSelect.value,
+        defaultLogs: parseInt(defaultLogsSelect.value, 10) || 60
+      };
+      localStorage.setItem(SETTING_STORAGE_KEY, JSON.stringify(userSettings));
+      applyFontSize(userSettings.fontSize);
+      visibleLogCount = userSettings.defaultLogs;
+      renderLineGraph(true, false);
+    }
+
     function autoCorrectInput() {
       const rawW = weightInput.value.trim();
       if (rawW) {
@@ -746,8 +829,8 @@
 
     function applyZoom(newVisibleCount, focalClientX) {
       const sortedCount = records.filter(r => r.weight !== null && r.weight !== undefined).length;
-      const maxVisible = Math.max(DEFAULT_VISIBLE_COUNT, sortedCount);
-      const clampedCount = Math.max(MIN_VISIBLE_COUNT, Math.min(maxVisible, newVisibleCount));
+      const maxVisible = Math.max(userSettings.defaultLogs, sortedCount);
+      const clampedCount = Math.max(10, Math.min(maxVisible, newVisibleCount));
 
       if (Math.abs(clampedCount - visibleLogCount) < 0.05) return;
 
@@ -771,12 +854,17 @@
         toggleIndicator.innerText = isOpen ? '[-]' : '[+]';
       };
 
+      settingToggle.onclick = () => {
+        const isOpen = settingBody.classList.toggle('open');
+        settingToggleIndicator.innerText = isOpen ? '[-]' : '[+]';
+      };
+
       memoTextarea.oninput = () => {
         localStorage.setItem(MEMO_STORAGE_KEY, memoTextarea.value);
       };
 
       document.getElementById('refreshBtn').onclick = () => {
-        visibleLogCount = DEFAULT_VISIBLE_COUNT;
+        visibleLogCount = userSettings.defaultLogs;
         selectedDateTimeStr = formatDateTime(new Date());
         dateTimeInput.value = selectedDateTimeStr;
         updateNativePickerValue(selectedDateTimeStr);
@@ -929,12 +1017,20 @@
         alert('PROFILE SAVED!');
       };
 
+      setSettingBtn.onclick = () => {
+        saveSettings();
+        alert('SETTINGS SAVED!');
+      };
+
       genderSelect.onchange = saveProfile;
       birthYearSelect.onchange = saveProfile;
       birthMonthSelect.onchange = saveProfile;
       heightInput.oninput = saveProfile;
       targetWeightInput.oninput = saveProfile;
       activitySelect.onchange = saveProfile;
+
+      fontSizeSelect.onchange = saveSettings;
+      defaultLogsSelect.onchange = saveSettings;
 
       exportBtn.onclick = exportData;
       importBtn.onclick = () => importFileInput.click();
@@ -944,6 +1040,7 @@
     function exportData() {
       const backupData = {
         profile: userProfile,
+        settings: userSettings,
         memo: localStorage.getItem(MEMO_STORAGE_KEY) || '',
         records: records.map(r => ({
           date: r.date.toISOString(),
@@ -989,6 +1086,15 @@
             activitySelect.value = userProfile.activityLevel !== undefined ? userProfile.activityLevel : 1.75;
           }
 
+          if (parsed.settings) {
+            userSettings = { ...userSettings, ...parsed.settings };
+            localStorage.setItem(SETTING_STORAGE_KEY, JSON.stringify(userSettings));
+            fontSizeSelect.value = userSettings.fontSize || 'small';
+            defaultLogsSelect.value = userSettings.defaultLogs || 60;
+            applyFontSize(userSettings.fontSize);
+            visibleLogCount = userSettings.defaultLogs;
+          }
+
           if (parsed.memo !== undefined) {
             localStorage.setItem(MEMO_STORAGE_KEY, parsed.memo);
             memoTextarea.value = parsed.memo;
@@ -1019,33 +1125,6 @@
         importFileInput.value = '';
       };
       reader.readAsText(file);
-    }
-
-    function calculateStreak() {
-      if (records.length === 0) return 0;
-      const dates = Array.from(new Set(records.map(r => {
-        const d = new Date(r.date);
-        d.setHours(0,0,0,0);
-        return d.getTime();
-      }))).sort((a,b) => a - b);
-
-      const today = new Date(); today.setHours(0,0,0,0);
-      const yesterday = today.getTime() - 86400000;
-
-      const latestDate = dates[dates.length - 1];
-      if (latestDate !== today.getTime() && latestDate !== yesterday) return 0;
-
-      let streak = 0;
-      let checkDate = latestDate;
-      for (let i = dates.length - 1; i >= 0; i--) {
-        if (dates[i] === checkDate) {
-          streak++;
-          checkDate -= 86400000;
-        } else if (dates[i] < checkDate) {
-          break;
-        }
-      }
-      return streak;
     }
 
     function loadRecordToController() {
@@ -1266,7 +1345,7 @@
       return `${y}/${m}/${d}`;
     }
 
-    function getRandomTip(weightRecs, streak) {
+    function getRandomTip(weightRecs) {
       if (weightRecs.length === 0) {
         return 'データを記録するとダイエットに役立つアドバイスや基礎知識が表示されます。';
       }
@@ -1276,7 +1355,6 @@
         '【TREND】昨日より微増していても、脂肪が増えたわけではありません。焦らず水分と塩分のコントロールを。',
         '【ADVICE】体脂肪を1kg減らすには約7,200kcalのアンダーカロリー（消費＞摂取）が必要です。極端な食事制限は筋肉の分解を招くため禁物です。',
         '【ADVICE】タンパク質は筋肉の維持・合成に不可欠であり、食事誘発性熱産生（DIT）も高いため太りにくい栄養素です。',
-        `【COMBO】現在 ${streak} 日連続記録中！記録をつける行為そのものが、無意識の食べすぎや生活の乱れを防ぐ最大の防御壁になります。`,
         '【HABIT】睡眠不足は食欲増進ホルモン（グレリン）を増やし、満腹ホルモン（レプチン）を減らします。まずは良質な睡眠を確保しましょう。',
         '【HABIT】こまめな水分補給は血流を促し、代謝の維持やむくみの予防・解消に直結します。',
         '【KNOWLEDGE】脂質はホルモンバランスや細胞膜の構成に必須の栄養素です。極端にカットせず、良質な脂質（青魚・ナッツ・オリーブオイル等）を選びましょう。',
@@ -1290,7 +1368,6 @@
 
     function renderReport() {
       const weightRecs = records.filter(r => r.weight !== null && r.weight !== undefined).sort((a,b) => a.date - b.date);
-      const streak = calculateStreak();
 
       if (weightRecs.length === 0) {
         repBmi.innerText = '--.- [--]';
@@ -1301,7 +1378,7 @@
         repLowestWeight.innerText = '-- kg (--/--/--)';
         repHighestWeight.innerText = '-- kg (--/--/--)';
         repWeightToGoal.innerText = '-- kg';
-        repComment.innerText = getRandomTip(weightRecs, streak);
+        repComment.innerText = getRandomTip(weightRecs);
         return;
       }
 
@@ -1373,7 +1450,7 @@
         repWeightToGoal.innerText = 'SET TARGET W';
       }
 
-      repComment.innerText = getRandomTip(weightRecs, streak);
+      repComment.innerText = getRandomTip(weightRecs);
     }
 
     window.addEventListener('resize', () => {
